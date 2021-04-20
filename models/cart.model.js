@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const CartSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
-    products: [{ productID: {type:Schema.Types.ObjectId, ref:'Product'}, quantity: Number, status: [String] }]
+    products: [{ productId: {type:Schema.Types.ObjectId, ref:'Product'}, quantity: Number, active: Boolean }]
 });
 
 const Cart = mongoose.model("Cart", CartSchema);

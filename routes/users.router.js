@@ -1,70 +1,95 @@
 const express = require("express");
 const router = express.Router();
 const {User} = require("../models/user.model");
+const {extend} = require("lodash");
+const e = require("express");
 
 router.route("/")
 .get( async (req,res)=>{
     try {
         const users = await User.find({});
-        res.json({ response : users, success : true });
+        res.status(200).json({ response : users, success : true });
     } catch(error){
-        res.json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
+        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
     } 
 })
 .post( async (req,res)=>{
     try {
-        const sentData = req.body;
-        const existingUser = User.findOne({username: sentData.username});
+        const userData = req.body;
         
-        if(existingUser){
+        const user = await User.findOne({username: userData.username});
+
+        if(user){
             res.status(409).json({success: false, message: "Account already exists for this email, please reset password if forgotten"});
             return;
         }
-        const newUser = new User(sentData);
-        const addedUser = await newUser.save();
-        res.json({ response : addedUser, success : true })
+
+        const NewUser = new User(userData);
+        const addedUserDataFromDb = await NewUser.save();
+
+        res.status(201).json({response: {firstname: addedUserDataFromDb.firstname, userId: addedUserDataFromDb._id}, success: true})
+
     }  catch(error){
-        res.json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
+        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
     }
 })
 
-router.route("/:id")
-.get( async(req,res)=>{
+router.route("/authenticate")
+.post( async(req,res)=>{
     try {
-        const { id } = req.params;
-        const UserFound = await User.findOne({_id: id});
+        const username = req.get("username");
+        const password = req.get("password")
+        const user = await User.findOne({username});
         
-        if(!UserFound){
-            res.status(404).json({success:false, message: "No User found associated, please check the User id!"});
+        if(!user){
+            res.status(401).json({success:false, message: "Username is incorrect!"});
+            return;
+        }else if(user.password === password){
+            res.status(200).json({response: {firstname: user.firstname, userId: user._id}, success: true});
             return;
         }
+        res.status(401).json({ message : "Password is incorrect!", success : false });
         
-        res.json({ response : UserFound, success : true })
     }  catch(error){
-        res.json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
+        
+        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
+    }
+})
+
+router.param("username", async(req, res, next, id)=>{
+    const user = await User.findOne({username: id});
+        
+        if(!user){
+            res.status(404).json({success:false, message: "Username does not exist!"});
+            return;
+        }
+        req.user = user;
+        next();
+})
+
+router.route("/:username")
+.get( async(req,res)=>{
+    try {
+        const { user } = req;
+        res.status(200).json({ response :  {username: user.username, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
+
+    }  catch(error){
+        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
     }
 })
 .post( async(req,res)=>{
     try {
-        const { id } = req.params;
-        const updateUser = req.body;
-        const UserFound = await User.findOne({_id: id});
+        let { user } = req;
         
-        if(!UserFound){
-            res.status(404).json({success:false, message: "No User found associated, please check the User id!"});
-            return;
-        }
+        const userUpdates = req.body
+
+        user = extend(user, userUpdates)
         
-        Object.keys(updateUser).map( (key)=>{
-            if(key in UserFound){
-                UserFound[key] = updateUser[key]
-            }
-        })
-        const resback = await UserFound.save();
-        res.json({ response : resback, success : true })
+        user = await user.save();
+        res.status(200).json({ response:{username: user.username, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
 
     }  catch(error){
-        res.json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
+        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
     }  
 })
 

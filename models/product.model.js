@@ -2,20 +2,60 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const ProductSchema = new Schema({
-    name : String,
-    image : String,
-    price : Number,
-    category : String,
-    brand : String,
-    inStock : Boolean,
-    fastDelivery : Boolean,
-    rating : {
-        starRating: Number, 
-        totalReviews: Number
+    name : {
+        type: String,
+        required: 'Product name is required'
     },
-    offer : Number,
-    level : String,
-    avalQty: Number
+    
+    image : {
+        type: String
+    },
+    
+    price : {
+        type: Number,
+        required: 'Product price is required'
+    },
+
+    category : {
+        type: String,
+        required: 'Product category is required'
+    },
+    
+    brand : {
+        type: String
+    },
+    
+    inStock : {
+        type: Boolean,
+        required: 'Product is instock information is required'
+    },
+    
+    fastDelivery : {
+        type: Boolean
+    },
+    
+    rating : {
+        starRating: {type: Number, default: 0}, 
+        totalReviews: {type: Number, default: 0}
+    },
+    
+    offer : {
+        type: Number,
+        default: 0
+    },
+    
+    level : {
+        type: String
+    },
+    
+    avalQty: {
+        type: Number,
+        required: 'Available quantity information is required'
+    },
+    
+    url:{
+        type: String
+    }
 });
 
 const Product = mongoose.model("Product", ProductSchema);
