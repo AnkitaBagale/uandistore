@@ -26,9 +26,7 @@ const UserSchema = new Schema({
         },
 
     firstname: {type: String, required:"first name is required"},
-    lastname: {type: String, required:"last name is required"},
-    createdAt: Number,
-    updatedAt: Number
+    lastname: {type: String, required:"last name is required"}
 },{
     timestamps: true
 });
