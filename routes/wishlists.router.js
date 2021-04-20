@@ -3,15 +3,6 @@ const router = express.Router();
 const { Wishlist } = require("../models/wishlist.model");
 const { User } = require("../models/user.model");
 
-router.route("/")
-.get( async (req,res)=>{
-    try {
-        const wishlists = await Wishlist.find({});
-        res.status(200).json({ response : wishlists, success : true });
-    } catch(error){
-        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
-    }  
-})
 
 router.param("userid", async(req, res, next, id)=>{
     try{
@@ -61,6 +52,7 @@ router.route("/:userid/wishlist")
         
         const isProductAlreadyAdded = wishlist.products.find((product)=>product.productId == productUpdates._id);
         
+        // if product is already present in the wishlist then toggling the status of product
         if(isProductAlreadyAdded) {
            for( let product of wishlist.products) {
                 if(productUpdates._id == product.productId){
@@ -73,8 +65,7 @@ router.route("/:userid/wishlist")
         let updatedWishlistFromDb = await wishlist.save();
         updatedWishlistFromDb = await updatedWishlistFromDb.populate({path:"products.productId", select: 'name price image offer inStock url',}).execPopulate();
         
-        const updatedProductFromDb = updatedWishlistFromDb.products.find((item)=>item.productId._id == productUpdates._id)
-        res.status(200).json({ response : updatedProductFromDb, success : true })
+        res.status(200).json({ response : updatedWishlistFromDb.products, success : true })
 
     }  catch(error){
         res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })

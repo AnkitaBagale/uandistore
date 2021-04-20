@@ -4,16 +4,6 @@ const { Cart } = require("../models/cart.model");
 const { User } = require("../models/user.model");
 const { extend } = require("lodash");
 
-router.route("/")
-.get( async (req,res)=>{
-    try {
-        const carts = await Cart.find({});
-        res.status(200).json({ response : carts, success : true });
-    } catch(error){
-        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
-    }  
-})
-
 router.param("userid", async(req, res, next, id)=>{
     try{
         const user = await User.findById({_id: id});
@@ -62,6 +52,7 @@ router.route("/:userid/cart")
         
         const isProductAlreadyAdded = cart.products.find((product)=>product.productId == productUpdates._id);
         
+        // if product is already present in the wishlist then updating that particular product
         if(isProductAlreadyAdded){
            for( let product of cart.products) {
                 if(productUpdates._id == product.productId){
@@ -73,10 +64,8 @@ router.route("/:userid/cart")
         } 
         let updatedCartFromDb = await cart.save();
         updatedCartFromDb = await updatedCartFromDb.populate({path:"products.productId", select: 'name price image offer inStock url',}).execPopulate();
-        
-        const updatedProductFromDb = updatedCartFromDb.products.find((item)=>item.productId._id == productUpdates._id)
        
-        res.status(200).json({ response : updatedProductFromDb, success : true })
+        res.status(200).json({ response : updatedCartFromDb.products, success : true })
 
     }  catch(error){
         res.json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })

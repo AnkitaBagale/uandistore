@@ -27,11 +27,13 @@ const ProductSchema = new Schema({
     
     inStock : {
         type: Boolean,
-        required: 'Product is instock information is required'
+        required: 'Product is instock information is required',
+        default: true
     },
     
     fastDelivery : {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     
     rating : {

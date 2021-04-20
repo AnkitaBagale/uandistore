@@ -5,14 +5,6 @@ const {extend} = require("lodash");
 const e = require("express");
 
 router.route("/")
-.get( async (req,res)=>{
-    try {
-        const users = await User.find({});
-        res.status(200).json({ response : users, success : true });
-    } catch(error){
-        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
-    } 
-})
 .post( async (req,res)=>{
     try {
         const userData = req.body;
