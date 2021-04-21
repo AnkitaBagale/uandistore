@@ -38,7 +38,9 @@ router.route("/:userid/wishlist")
     try { 
         let {wishlist} = req ;
         wishlist = await wishlist.populate({path:"products.productId", select: 'name price image brand offer inStock url',}).execPopulate();
-        res.status(200).json({ response : wishlist, success : true });
+        
+        activeProductsInWishlist = wishlist.products.filter((item)=>item.active);
+        res.status(200).json({ response : activeProductsInWishlist, success : true });
 
     }  catch(error) {
         console.error(error)
@@ -65,7 +67,9 @@ router.route("/:userid/wishlist")
         let updatedWishlistFromDb = await wishlist.save();
         updatedWishlistFromDb = await updatedWishlistFromDb.populate({path:"products.productId", select: 'name price image offer inStock url',}).execPopulate();
         
-        res.status(200).json({ response : updatedWishlistFromDb.products, success : true })
+        activeProductsInWishlist = updatedWishlistFromDb.products.filter((item)=>item.active);
+        
+        res.status(200).json({ response : activeProductsInWishlist, success : true })
 
     }  catch(error){
         res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })

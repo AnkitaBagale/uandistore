@@ -38,7 +38,10 @@ router.route("/:userid/cart")
     try { 
         let {cart} = req ;
         cart = await cart.populate({path:"products.productId", select: 'name price image offer inStock url',}).execPopulate();
-        res.status(200).json({ response : cart, success : true });
+        
+        activeProductsInCart = cart.products.filter((item)=>item.active);
+        
+        res.status(200).json({ response : activeProductsInCart, success : true });
 
     }  catch(error) {
         console.error(error)
@@ -65,7 +68,9 @@ router.route("/:userid/cart")
         let updatedCartFromDb = await cart.save();
         updatedCartFromDb = await updatedCartFromDb.populate({path:"products.productId", select: 'name price image offer inStock url',}).execPopulate();
        
-        res.status(200).json({ response : updatedCartFromDb.products, success : true })
+        activeProductsInCart = updatedCartFromDb.products.filter((item)=>item.active);
+
+        res.status(200).json({ response : activeProductsInCart, success : true })
 
     }  catch(error){
         res.json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })

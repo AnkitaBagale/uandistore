@@ -21,6 +21,7 @@ const port = 3000;
 initializeConnectionToDb();
 
 app.get("/", (req,res)=>{
+  console.log("i was here")
   res.send("Welcome to the U&I store");
 })
 
