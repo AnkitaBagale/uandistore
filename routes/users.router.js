@@ -59,15 +59,6 @@ router.param("email", async(req, res, next, id)=>{
 })
 
 router.route("/:email")
-.get( async(req,res)=>{
-    try {
-        const { user } = req;
-        res.status(200).json({ response :  {email: user.email, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
-
-    }  catch(error){
-        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
-    }
-})
 .post( async(req,res)=>{
     try {
         let { user } = req;
@@ -89,6 +80,7 @@ router.route("/:userId")
 
     try {
         const {userId} = req.params;
+        console.log(userId);
         const user = await User.findById({_id: userId});
 
         if(!user){
