@@ -9,7 +9,7 @@ router.route("/")
     try {
         const userData = req.body;
         
-        const user = await User.findOne({username: userData.username});
+        const user = await User.findOne({email: userData.email});
 
         if(user){
             res.status(409).json({success: false, message: "Account already exists for this email, please reset password if forgotten"});
@@ -29,12 +29,12 @@ router.route("/")
 router.route("/authenticate")
 .post( async(req,res)=>{
     try {
-        const username = req.get("username");
+        const email = req.get("email");
         const password = req.get("password")
-        const user = await User.findOne({username});
+        const user = await User.findOne({email});
         
         if(!user){
-            res.status(401).json({success:false, message: "Username is incorrect!"});
+            res.status(401).json({success:false, message: "email is incorrect!"});
             return;
         }else if(user.password === password){
             res.status(200).json({response: {firstname: user.firstname, userId: user._id}, success: true});
@@ -48,22 +48,22 @@ router.route("/authenticate")
     }
 })
 
-router.param("username", async(req, res, next, id)=>{
-    const user = await User.findOne({username: id});
+router.param("email", async(req, res, next, id)=>{
+    const user = await User.findOne({email: id});
         
         if(!user){
-            res.status(404).json({success:false, message: "Username does not exist!"});
+            res.status(404).json({success:false, message: "email does not exist!"});
             return;
         }
         req.user = user;
         next();
 })
 
-router.route("/:username")
+router.route("/:email")
 .get( async(req,res)=>{
     try {
         const { user } = req;
-        res.status(200).json({ response :  {username: user.username, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
+        res.status(200).json({ response :  {email: user.email, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
 
     }  catch(error){
         res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
@@ -78,7 +78,7 @@ router.route("/:username")
         user = extend(user, userUpdates)
         
         user = await user.save();
-        res.status(200).json({ response:{username: user.username, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
+        res.status(200).json({ response:{email: user.email, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
 
     }  catch(error){
         res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })

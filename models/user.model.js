@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
-    username:{
+    email:{
         type: String,
         unique: "Account already exists for this email",
         required:"Email id is required",
@@ -10,7 +10,7 @@ const UserSchema = new Schema({
             validator: function(value) {
                 return /^.+@.+\.com$/.test(value);
             },
-            message: props => `${props.value} is not a valid username!`
+            message: props => `${props.value} is not a valid email!`
           }
         },
 
