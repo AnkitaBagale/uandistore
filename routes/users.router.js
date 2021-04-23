@@ -43,7 +43,6 @@ router.route("/authenticate")
         res.status(401).json({ message : "Password is incorrect!", success : false });
         
     }  catch(error){
-        
         res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
     }
 })
@@ -83,6 +82,25 @@ router.route("/:email")
     }  catch(error){
         res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
     }  
+})
+
+router.route("/:userId")
+.get( async(req,res)=>{
+
+    try {
+        const {userId} = req.params;
+        const user = await User.findById({_id: userId});
+
+        if(!user){
+            res.status(404).json({success:false, message: "email does not exist!"});
+            return;
+        }
+        
+        res.status(200).json({ response : {email: user.email, firstname: user.firstname, lastname: user.lastname, userId: user._id}, success : true })
+
+    }  catch(error){
+        res.status(500).json({success:false, message: "Request failed please check errorMessage key for more details", errorMessage: error.message })
+    }
 })
 
 
