@@ -6,6 +6,7 @@ const products = require("./routes/products.router");
 const carts = require("./routes/carts.router");
 const users = require("./routes/users.router");
 const wishlists = require("./routes/wishlists.router");
+const addresses = require("./routes/addresses.router");
 const routeNotFoundHandler = require("./middlewares/route-not-found.middlerware");
 const allErrorsHandler = require("./middlewares/all-errors-handler.middleware");
 const initializeConnectionToDb = require("./db/db.connect");
@@ -21,7 +22,6 @@ const port = 3000;
 initializeConnectionToDb();
 
 app.get("/", (req,res)=>{
-  console.log("i was here")
   res.send("Welcome to the U&I store");
 })
 
@@ -29,6 +29,7 @@ app.use("/products", products);
 app.use("/wishlists", wishlists);
 app.use("/carts", carts);
 app.use("/users", users);
+app.use("/users", addresses);
 
 /**
  * 404 Route Handler
