@@ -7,6 +7,12 @@ const carts = require("./routes/carts.router");
 const users = require("./routes/users.router");
 const wishlists = require("./routes/wishlists.router");
 const addresses = require("./routes/addresses.router");
+
+const tutors = require("./routes/tutors.router");
+const videos = require("./routes/videos.router");
+const notes = require("./routes/notes.router");
+const playlists = require("./routes/playlists.router");
+
 const routeNotFoundHandler = require("./middlewares/route-not-found.middlerware");
 const allErrorsHandler = require("./middlewares/all-errors-handler.middleware");
 const initializeConnectionToDb = require("./db/db.connect");
@@ -30,6 +36,11 @@ app.use("/wishlists", wishlists);
 app.use("/carts", carts);
 app.use("/users", users);
 app.use("/users", addresses);
+
+app.use("/tutors", tutors);
+app.use("/videos", videos);
+app.use("/notes", notes);
+app.use("/playlists", playlists);
 
 /**
  * 404 Route Handler
