@@ -3,6 +3,8 @@ const router = express.Router();
 const {User} = require("../models/user.model");
 const {extend} = require("lodash");
 const e = require("express");
+const { Note } = require("../models/note.model");
+const { Playlist } = require("../models/playlist.model");
 
 router.route("/")
 .post( async (req,res)=>{
@@ -95,5 +97,46 @@ router.route("/:userId")
     }
 })
 
+router.route("/:userId/notes/:videoId")
+.get(async (req,res)=>{
+    try {
+        const { userId, videoId } = req.params;
+        const notes = await Note.find({userId: userId, videoId: videoId});
+        res.status(200).json({response: notes, success: true})
+    } catch(error) {
+        res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message})
+    }
+})
+
+router.route("/:userId/playlists")
+.get(async (req,res)=>{
+    try {
+        const { userId } = req.params;
+        const type = req.get("type");
+     
+        
+        let playlists = await Playlist.find({userId, type});
+
+        if(playlists.length === 0){
+            
+            let watchlaterPlaylist = new Playlist({userId,type:"watchlater",isDefault: true, videoList:[]});
+            let historyPlaylist = new Playlist({userId,type:"history",isDefault: true, videoList:[]});
+            let likedPlaylist = new Playlist({userId,type:"liked",isDefault: true, videoList:[]});
+            await Playlist.insertMany([watchlaterPlaylist, historyPlaylist, likedPlaylist]);
+           
+            res.status(201).json({response: {watchlaterPlaylist, historyPlaylist, likedPlaylist, customPlaylist:[] }, success: true})
+            return;
+        }
+        const historyPlaylist = playlists.find((item)=>item.type==="history");
+        const likedPlaylist = playlists.find((item)=>item.type==="liked");
+        const watchlaterPlaylist = playlists.find((item)=>item.type==="watchlater");
+        const customPlaylist = playlists.filter((item)=>item.type==="custom");
+
+        res.status(200).json({response: {watchlaterPlaylist, historyPlaylist, likedPlaylist, customPlaylist }, success: true})
+        
+    } catch(error) {
+        res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message})
+    }
+})
 
 module.exports = router;
