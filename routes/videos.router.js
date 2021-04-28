@@ -6,7 +6,8 @@ const {extend} = require("lodash");
 
 router.route("/")
 .get(async(req,res)=>{
-    const videos = await Video.find({});
+    const videos = await Video.find({}).populate("tutorId");
+
     res.status(200).json({response: videos, success: true});
 })
 .post(async(req,res)=>{
