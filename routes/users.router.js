@@ -112,10 +112,8 @@ router.route("/:userId/playlists")
 .get(async (req,res)=>{
     try {
         const { userId } = req.params;
-        const type = req.get("type");
-     
         
-        let playlists = await Playlist.find({userId, type});
+        let playlists = await Playlist.find({userId}).populate({ path: "videoList.videoId", populate: { path: "tutorId" } });
 
         if(playlists.length === 0){
             
@@ -127,6 +125,7 @@ router.route("/:userId/playlists")
             res.status(201).json({response: {watchlaterPlaylist, historyPlaylist, likedPlaylist, customPlaylist:[] }, success: true})
             return;
         }
+        
         const historyPlaylist = playlists.find((item)=>item.type==="history");
         const likedPlaylist = playlists.find((item)=>item.type==="liked");
         const watchlaterPlaylist = playlists.find((item)=>item.type==="watchlater");
