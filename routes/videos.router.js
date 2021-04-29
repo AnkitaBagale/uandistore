@@ -6,9 +6,14 @@ const {extend} = require("lodash");
 
 router.route("/")
 .get(async(req,res)=>{
-    const videos = await Video.find({}).populate("tutorId");
+    try {
+        const videos = await Video.find({}).populate("tutorId");
 
-    res.status(200).json({response: videos, success: true});
+        res.status(200).json({response: videos, success: true});
+    } catch(error) {
+        res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message})
+    }
+    
 })
 .post(async(req,res)=>{
     try {
@@ -24,6 +29,20 @@ router.route("/")
             res.status(201).json({response: NewVideo, success: true});
         }
 
+    } catch(error) {
+        res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message})
+    }
+    
+})
+
+router.route("/:videoId")
+.get(async(req,res)=>{
+    try {
+        const {videoId} = req.params;
+        const video = await Video.findById(videoId).populate("tutorId");
+
+        res.status(200).json({response: video, success: true});
+        
     } catch(error) {
         res.status(500).json({ success: false, message: "Something went wrong", errorMessage: error.message})
     }
