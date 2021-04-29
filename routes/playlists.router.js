@@ -9,6 +9,7 @@ router.route("/")
         let newPlaylist = req.body;
         newPlaylist = new Playlist(newPlaylist);
         newPlaylist = await newPlaylist.save();
+        newPlaylist = await newPlaylist.populate("videoList.videoId").execPopulate();
         
         res.status(201).json({response: newPlaylist, success: true})
     } catch(error) {
