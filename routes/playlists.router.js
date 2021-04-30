@@ -33,7 +33,7 @@ router.route("/:playlistId")
         const playlistUpdates = req.body;
         playlist = extend(playlist, playlistUpdates);
         playlist = await playlist.save();
-        playlist = playlist.populate({ path: "videoList.videoId", populate: { path: "tutorId" } }).execPopulate();
+        playlist = await playlist.populate({ path: "videoList.videoId", populate: { path: "tutorId" } }).execPopulate();
         res.status(200).json({response: playlist, success: true})
 
     } catch(error) {
