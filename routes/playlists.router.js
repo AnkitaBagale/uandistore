@@ -9,7 +9,7 @@ router.route("/")
         let newPlaylist = req.body;
         newPlaylist = new Playlist(newPlaylist);
         newPlaylist = await newPlaylist.save();
-        newPlaylist = await newPlaylist.populate("videoList.videoId").execPopulate();
+        newPlaylist = await newPlaylist.populate({ path: "videoList.videoId", populate: { path: "tutorId" } }).execPopulate();
         
         res.status(201).json({response: newPlaylist, success: true})
     } catch(error) {
@@ -33,6 +33,7 @@ router.route("/:playlistId")
         const playlistUpdates = req.body;
         playlist = extend(playlist, playlistUpdates);
         playlist = await playlist.save();
+        playlist = playlist.populate({ path: "videoList.videoId", populate: { path: "tutorId" } }).execPopulate();
         res.status(200).json({response: playlist, success: true})
 
     } catch(error) {
@@ -64,7 +65,7 @@ router.route("/:playlistId/videos")
         if(newVideoList.length !== playlist.videoList.length){
             playlist.videoList = newVideoList;
             playlist = await playlist.save();
-            playlist = await playlist.populate("videoList.videoId").execPopulate();
+            playlist = await playlist.populate({ path: "videoList.videoId", populate: { path: "tutorId" } }).execPopulate();
             
             res.status(200).json({response: playlist, success:true});
             return;
@@ -72,7 +73,7 @@ router.route("/:playlistId/videos")
 
         playlist.videoList.push(videoUpdates);
         playlist = await playlist.save();
-        playlist = await playlist.populate("videoList.videoId").execPopulate();
+        playlist = await playlist.populate({ path: "videoList.videoId", populate: { path: "tutorId" } }).execPopulate();
         res.status(201).json({response: playlist, success: true})
 
     } catch(error) {
