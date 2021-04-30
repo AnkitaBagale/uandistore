@@ -42,8 +42,7 @@ router.route("/:noteId")
 .delete(async(req,res)=>{
     try{
         let {note} = req;
-        await note.remove();
-        note = await note.save();
+        note = await note.remove();
         res.status(200).json({response: note, success: true})
         
     } catch(error) {
