@@ -22,7 +22,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const port = 3000;
+const port = 8000;
 
 initializeConnectionToDb();
 

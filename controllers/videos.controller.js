@@ -56,8 +56,23 @@ const getVideoByIdFromDb = async (req, res) => {
 	}
 };
 
+const getVideosOfType = async (req, res) => {
+	try {
+		const { typeOfVideo } = req.params;
+		const videos = await Video.find({ type: typeOfVideo }).limit(3);
+		res.status(200).send({ response: videos, success: true });
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: 'Something went wrong',
+			errorMessage: error.message,
+		});
+	}
+};
+
 module.exports = {
 	getAllVideosFromDb,
 	createOrUpdateVideo,
 	getVideoByIdFromDb,
+	getVideosOfType,
 };
