@@ -6,11 +6,10 @@ const getAllAddressesOfUser = async (req, res) => {
 		const { userId } = req.params;
 		const addresses = await Address.find({ userId: userId });
 
-		res.status(200).json({ response: addresses, success: true });
+		res.status(200).json({ response: addresses });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -27,11 +26,10 @@ const createNewAddress = async (req, res) => {
 
 		const updatedAddressesFromDb = await Address.find({ userId: userId });
 
-		res.status(201).json({ response: updatedAddressesFromDb, success: true });
+		res.status(201).json({ response: updatedAddressesFromDb });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -50,10 +48,9 @@ const updateAddress = async (req, res) => {
 
 		const updatedAddressesFromDb = await Address.find({ userId: userId });
 
-		res.status(200).json({ response: updatedAddressesFromDb, success: true });
+		res.status(200).json({ response: updatedAddressesFromDb });
 	} catch (error) {
 		res.json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -70,10 +67,9 @@ const deleteAddress = async (req, res) => {
 
 		const updatedAddressesFromDb = await Address.find({ userId: userId });
 
-		res.status(200).json({ response: updatedAddressesFromDb, success: true });
+		res.status(200).json({ response: updatedAddressesFromDb });
 	} catch (error) {
 		res.json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});

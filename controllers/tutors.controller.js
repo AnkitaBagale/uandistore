@@ -3,10 +3,9 @@ const { Tutor } = require('../models/tutor.model');
 const getAllTutorsFromDb = async (req, res) => {
 	try {
 		const tutors = await Tutor.find({});
-		res.status(201).json({ response: tutors, success: true });
+		res.status(201).json({ response: tutors });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -18,10 +17,9 @@ const createNewTutor = async (req, res) => {
 		tutorDetails = req.body;
 		let NewTutor = new Tutor(tutorDetails);
 		NewTutor = await NewTutor.save();
-		res.status(201).json({ response: NewTutor, success: true });
+		res.status(201).json({ response: NewTutor });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});

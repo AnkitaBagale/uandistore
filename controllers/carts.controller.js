@@ -8,7 +8,6 @@ const getUserFromDb = async (req, res, next, id) => {
 
 		if (!user) {
 			res.status(404).json({
-				success: false,
 				message: 'No user found associated, please check the user id!',
 			});
 			return;
@@ -17,7 +16,6 @@ const getUserFromDb = async (req, res, next, id) => {
 		next();
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -36,7 +34,6 @@ const getOrCreateCartOfUserFromDb = async (req, res, next, id) => {
 		next();
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -60,12 +57,10 @@ const populateCartFromDb = async (req, res) => {
 				products: activeProductsInCart,
 				addressId: cart.addressId,
 			},
-			success: true,
 		});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -112,11 +107,9 @@ const addOrUpdateProductInCart = async (req, res) => {
 				products: activeProductsInCart,
 				addressId: cart.addressId,
 			},
-			success: true,
 		});
 	} catch (error) {
 		res.json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -144,11 +137,9 @@ const updateAddressIdInCart = async (req, res) => {
 				products: activeProductsInCart,
 				addressId: cart.addressId,
 			},
-			success: true,
 		});
 	} catch (error) {
 		res.json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});

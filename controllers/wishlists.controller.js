@@ -7,7 +7,6 @@ const getUserByIdFromDb = async (req, res, next, id) => {
 
 		if (!user) {
 			res.status(404).json({
-				success: false,
 				message: 'No user found associated, please check the user id!',
 			});
 			return;
@@ -16,7 +15,6 @@ const getUserByIdFromDb = async (req, res, next, id) => {
 		next();
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -35,7 +33,6 @@ const getOrCreateWishlistFromDb = async (req, res, next, id) => {
 		next();
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -53,11 +50,10 @@ const populateWishlistFromDb = async (req, res) => {
 			.execPopulate();
 
 		activeProductsInWishlist = wishlist.products.filter((item) => item.active);
-		res.status(200).json({ response: activeProductsInWishlist, success: true });
+		res.status(200).json({ response: activeProductsInWishlist });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -95,10 +91,9 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 			(item) => item.active,
 		);
 
-		res.status(200).json({ response: activeProductsInWishlist, success: true });
+		res.status(200).json({ response: activeProductsInWishlist });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});

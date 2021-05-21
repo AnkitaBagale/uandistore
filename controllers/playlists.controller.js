@@ -10,10 +10,9 @@ const createNewPlaylist = async (req, res) => {
 			.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 			.execPopulate();
 
-		res.status(201).json({ response: newPlaylist, success: true });
+		res.status(201).json({ response: newPlaylist });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -27,7 +26,6 @@ const getPlaylistFromDb = async (req, res, next, id) => {
 		next();
 	} catch (error) {
 		res.status(404).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -43,10 +41,9 @@ const updatePlaylist = async (req, res) => {
 		playlist = await playlist
 			.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 			.execPopulate();
-		res.status(200).json({ response: playlist, success: true });
+		res.status(200).json({ response: playlist });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -60,10 +57,9 @@ const deletePlaylist = async (req, res) => {
 			throw new Error('Cannot delete default playlist');
 		}
 		await playlist.remove();
-		res.status(200).json({ response: playlist, success: true });
+		res.status(200).json({ response: playlist });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -86,7 +82,7 @@ const addOrRemoveVideoFromPlaylist = async (req, res) => {
 				.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 				.execPopulate();
 
-			res.status(200).json({ response: playlist, success: true });
+			res.status(200).json({ response: playlist });
 			return;
 		}
 
@@ -95,10 +91,9 @@ const addOrRemoveVideoFromPlaylist = async (req, res) => {
 		playlist = await playlist
 			.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 			.execPopulate();
-		res.status(201).json({ response: playlist, success: true });
+		res.status(201).json({ response: playlist });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});

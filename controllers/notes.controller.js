@@ -6,10 +6,9 @@ const createNoteForVideo = async (req, res) => {
 		let newNote = req.body;
 		newNote = new Note(newNote);
 		newNote = await newNote.save();
-		res.status(201).json({ response: newNote, success: true });
+		res.status(201).json({ response: newNote });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -23,7 +22,6 @@ const getNoteFromDb = async (req, res, next, id) => {
 		next();
 	} catch (error) {
 		res.status(404).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -36,10 +34,9 @@ const updateNote = async (req, res) => {
 		let { note } = req;
 		note = extend(note, noteUpdates);
 		note = await note.save();
-		res.status(200).json({ response: note, success: true });
+		res.status(200).json({ response: note });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -50,10 +47,9 @@ const deleteNote = async (req, res) => {
 	try {
 		let { note } = req;
 		note = await note.remove();
-		res.status(200).json({ response: note, success: true });
+		res.status(200).json({ response: note });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});

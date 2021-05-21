@@ -11,7 +11,6 @@ const createNewUser = async (req, res) => {
 
 		if (user) {
 			res.status(409).json({
-				success: false,
 				message:
 					'Account already exists for this email, please reset password if forgotten',
 			});
@@ -26,11 +25,9 @@ const createNewUser = async (req, res) => {
 				firstname: addedUserDataFromDb.firstname,
 				userId: addedUserDataFromDb._id,
 			},
-			success: true,
 		});
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -44,19 +41,17 @@ const checkAuthenticationOfUser = async (req, res) => {
 		const user = await User.findOne({ email });
 
 		if (!user) {
-			res.status(401).json({ success: false, message: 'email is incorrect!' });
+			res.status(401).json({ message: 'email is incorrect!' });
 			return;
 		} else if (user.password === password) {
 			res.status(200).json({
 				response: { firstname: user.firstname, userId: user._id },
-				success: true,
 			});
 			return;
 		}
-		res.status(401).json({ message: 'Password is incorrect!', success: false });
+		res.status(401).json({ message: 'Password is incorrect!' });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -67,7 +62,7 @@ const getUserByEmailFromDb = async (req, res, next, id) => {
 	const user = await User.findOne({ email: id });
 
 	if (!user) {
-		res.status(404).json({ success: false, message: 'email does not exist!' });
+		res.status(404).json({ message: 'email does not exist!' });
 		return;
 	}
 	req.user = user;
@@ -90,11 +85,9 @@ const updateUserDetails = async (req, res) => {
 				lastname: user.lastname,
 				userId: user._id,
 			},
-			success: true,
 		});
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -108,9 +101,7 @@ const getUserByIdFromDb = async (req, res) => {
 		const user = await User.findById({ _id: userId });
 
 		if (!user) {
-			res
-				.status(404)
-				.json({ success: false, message: 'email does not exist!' });
+			res.status(404).json({ message: 'email does not exist!' });
 			return;
 		}
 
@@ -121,11 +112,9 @@ const getUserByIdFromDb = async (req, res) => {
 				lastname: user.lastname,
 				userId: user._id,
 			},
-			success: true,
 		});
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -136,10 +125,9 @@ const getNotesOfVideoOfUserFromDb = async (req, res) => {
 	try {
 		const { userId, videoId } = req.params;
 		const notes = await Note.find({ userId: userId, videoId: videoId });
-		res.status(200).json({ response: notes, success: true });
+		res.status(200).json({ response: notes });
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
@@ -187,7 +175,6 @@ const getOrCreatePlaylistsOfUser = async (req, res) => {
 					likedPlaylist,
 					customPlaylist: [],
 				},
-				success: true,
 			});
 			return;
 		}
@@ -206,11 +193,9 @@ const getOrCreatePlaylistsOfUser = async (req, res) => {
 				likedPlaylist,
 				customPlaylist,
 			},
-			success: true,
 		});
 	} catch (error) {
 		res.status(500).json({
-			success: false,
 			message: 'Something went wrong',
 			errorMessage: error.message,
 		});
