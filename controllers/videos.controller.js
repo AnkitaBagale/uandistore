@@ -77,29 +77,6 @@ const getVideosOfType = async (req, res) => {
 	}
 };
 
-const getVideosOfType = async (req, res) => {
-	try {
-		const { typeOfVideo } = req.params;
-
-		let videos = await Video.find({ type: typeOfVideo }).limit(3);
-
-		const noOfVideosFetched = videos.length;
-
-		if (noOfVideosFetched < 3) {
-			const moreVideos = await Video.find({}).limit(3 - noOfVideosFetched);
-			videos = videos.concat(moreVideos);
-		}
-
-		res.status(200).send({ response: videos, success: true });
-	} catch (error) {
-		res.status(500).json({
-			success: false,
-			message: 'Something went wrong',
-			errorMessage: error.message,
-		});
-	}
-};
-
 module.exports = {
 	getAllVideosFromDb,
 	createOrUpdateVideo,
