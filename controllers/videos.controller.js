@@ -6,6 +6,7 @@ const getAllVideosFromDb = async (req, res) => {
 		const videos = await Video.find({}).populate('tutorId');
 		res.status(200).json({ response: videos });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,
@@ -27,6 +28,7 @@ const createOrUpdateVideo = async (req, res) => {
 			res.status(201).json({ response: NewVideo });
 		}
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,
@@ -44,6 +46,7 @@ const getVideoByIdFromDb = async (req, res) => {
 		}
 		res.status(404).json({ message: 'video associated with id not found' });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,
@@ -66,6 +69,7 @@ const getVideosOfType = async (req, res) => {
 
 		res.status(200).send({ response: videos });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,

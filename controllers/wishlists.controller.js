@@ -14,6 +14,7 @@ const getUserByIdFromDb = async (req, res, next, id) => {
 		req.user = user;
 		next();
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -32,6 +33,7 @@ const getOrCreateWishlistFromDb = async (req, res, next, id) => {
 		req.wishlist = wishlist;
 		next();
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -52,6 +54,7 @@ const populateWishlistFromDb = async (req, res) => {
 		activeProductsInWishlist = wishlist.products.filter((item) => item.active);
 		res.status(200).json({ response: activeProductsInWishlist });
 	} catch (error) {
+		console.error(error);
 		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
@@ -93,6 +96,7 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 
 		res.status(200).json({ response: activeProductsInWishlist });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,

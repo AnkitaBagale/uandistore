@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const OptionSchema = new Schema({
-	text: string,
-	isRight: boolean,
+	text: String,
+	isRight: Boolean,
 });
 
 const QuestionSchema = new Schema({
-	question: string,
-	image: string,
-	points: number,
-	negativePoints: number,
+	question: String,
+	image: String,
+	points: Number,
+	negativePoints: Number,
 	options: [OptionSchema],
 });
 
@@ -20,12 +20,12 @@ const UserScoreSchema = {
 };
 
 const QuizSchema = new Schema({
-	name: string,
-	image: string,
-	totalQuestions: number,
+	name: String,
+	image: String,
+	totalQuestions: Number,
 	questions: [QuestionSchema],
-	type: string,
-	level: string,
+	type: String,
+	level: String,
 	highScore: [UserScoreSchema],
 });
 

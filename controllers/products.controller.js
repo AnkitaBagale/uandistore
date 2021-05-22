@@ -6,6 +6,7 @@ const getAllProductsFromDb = async (req, res) => {
 
 		res.status(200).json({ response: products });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -20,6 +21,7 @@ const createNewProduct = async (req, res) => {
 		const addedProductFromDb = await NewProduct.save();
 		res.status(201).json({ response: addedProductFromDb });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -38,6 +40,7 @@ const getProductByIdFromDb = async (req, res) => {
 			res.status(404).json({ message: 'No product found' });
 		}
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,

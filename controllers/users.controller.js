@@ -27,6 +27,7 @@ const createNewUser = async (req, res) => {
 			},
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -51,6 +52,7 @@ const checkAuthenticationOfUser = async (req, res) => {
 		}
 		res.status(401).json({ message: 'Password is incorrect!' });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -87,6 +89,7 @@ const updateUserDetails = async (req, res) => {
 			},
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -97,7 +100,7 @@ const updateUserDetails = async (req, res) => {
 const getUserByIdFromDb = async (req, res) => {
 	try {
 		const { userId } = req.params;
-		console.log(userId);
+
 		const user = await User.findById({ _id: userId });
 
 		if (!user) {
@@ -114,6 +117,7 @@ const getUserByIdFromDb = async (req, res) => {
 			},
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -127,6 +131,7 @@ const getNotesOfVideoOfUserFromDb = async (req, res) => {
 		const notes = await Note.find({ userId: userId, videoId: videoId });
 		res.status(200).json({ response: notes });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,
@@ -195,6 +200,7 @@ const getOrCreatePlaylistsOfUser = async (req, res) => {
 			},
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,

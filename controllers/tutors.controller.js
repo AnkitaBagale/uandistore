@@ -5,6 +5,7 @@ const getAllTutorsFromDb = async (req, res) => {
 		const tutors = await Tutor.find({});
 		res.status(201).json({ response: tutors });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,
@@ -14,11 +15,12 @@ const getAllTutorsFromDb = async (req, res) => {
 
 const createNewTutor = async (req, res) => {
 	try {
-		tutorDetails = req.body;
+		const tutorDetails = req.body;
 		let NewTutor = new Tutor(tutorDetails);
 		NewTutor = await NewTutor.save();
 		res.status(201).json({ response: NewTutor });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Something went wrong',
 			errorMessage: error.message,

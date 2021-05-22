@@ -50,6 +50,7 @@ const updateAddress = async (req, res) => {
 
 		res.status(200).json({ response: updatedAddressesFromDb });
 	} catch (error) {
+		console.error(error);
 		res.json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -69,6 +70,7 @@ const deleteAddress = async (req, res) => {
 
 		res.status(200).json({ response: updatedAddressesFromDb });
 	} catch (error) {
+		console.error(error);
 		res.json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,

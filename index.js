@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -13,6 +14,8 @@ const videos = require('./routes/videos.router');
 const notes = require('./routes/notes.router');
 const playlists = require('./routes/playlists.router');
 
+const quizzes = require('./routes/quiz.router');
+
 const routeNotFoundHandler = require('./middlewares/route-not-found.middlerware');
 const allErrorsHandler = require('./middlewares/all-errors-handler.middleware');
 const initializeConnectionToDb = require('./db/db.connect');
@@ -22,7 +25,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const port = 3000;
+const port = 8000;
 
 initializeConnectionToDb();
 
@@ -40,6 +43,8 @@ app.use('/tutors', tutors);
 app.use('/videos', videos);
 app.use('/notes', notes);
 app.use('/playlists', playlists);
+
+app.use('/quizzes', quizzes);
 
 /**
  * 404 Route Handler

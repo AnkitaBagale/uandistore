@@ -15,6 +15,7 @@ const getUserFromDb = async (req, res, next, id) => {
 		req.user = user;
 		next();
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -33,6 +34,7 @@ const getOrCreateCartOfUserFromDb = async (req, res, next, id) => {
 		req.cart = cart;
 		next();
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -109,6 +111,7 @@ const addOrUpdateProductInCart = async (req, res) => {
 			},
 		});
 	} catch (error) {
+		console.error(error);
 		res.json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
@@ -139,6 +142,7 @@ const updateAddressIdInCart = async (req, res) => {
 			},
 		});
 	} catch (error) {
+		console.error(error);
 		res.json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
