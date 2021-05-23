@@ -51,3 +51,10 @@ Video Library App:
    - Create new note
    - Update note's title, description
    - Delete note
+
+Quiz App:
+
+1. Multiple Categories
+1. Multiple Quizzes
+1. Store user's score for the quiz
+1. HighScore management
