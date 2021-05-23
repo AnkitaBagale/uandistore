@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const OptionSchema = new Schema({
 	text: { type: String, required: 'Text for option is required' },
 	isRight: {
-		type: String,
+		type: Boolean,
 		required: 'isRight should be true if option is right, otherwise false',
 	},
 });

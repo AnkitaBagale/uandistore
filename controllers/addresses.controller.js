@@ -1,5 +1,5 @@
 const { Address } = require('../models/address.model');
-const { extend, add } = require('lodash');
+const { extend } = require('lodash');
 
 const getAllAddressesOfUser = async (req, res) => {
 	try {
