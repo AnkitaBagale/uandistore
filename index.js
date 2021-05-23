@@ -15,6 +15,8 @@ const notes = require('./routes/notes.router');
 const playlists = require('./routes/playlists.router');
 
 const quizzes = require('./routes/quiz.router');
+const categories = require('./routes/categories.router');
+const quizAttempts = require('./routes/quizAttempts.router');
 
 const routeNotFoundHandler = require('./middlewares/route-not-found.middlerware');
 const allErrorsHandler = require('./middlewares/all-errors-handler.middleware');
@@ -45,6 +47,8 @@ app.use('/notes', notes);
 app.use('/playlists', playlists);
 
 app.use('/quizzes', quizzes);
+app.use('/categories', categories);
+app.use('/quiz-attempts', quizAttempts);
 
 /**
  * 404 Route Handler

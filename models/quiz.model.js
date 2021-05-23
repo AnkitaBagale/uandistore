@@ -2,30 +2,47 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const OptionSchema = new Schema({
-	text: String,
-	isRight: Boolean,
+	text: { type: String, required: 'Text for option is required' },
+	isRight: {
+		type: String,
+		required: 'isRight should be true if option is right, otherwise false',
+	},
 });
 
 const QuestionSchema = new Schema({
-	question: String,
-	image: String,
-	points: Number,
-	negativePoints: Number,
+	question: { type: String, required: 'Question is required' },
+	image: {
+		type: String,
+		required: 'Reference image for the question is required',
+	},
+	points: { type: Number, required: 'Points for the question is required' },
+	negativePoints: { type: Number, default: 0 },
 	options: [OptionSchema],
 });
 
 const UserScoreSchema = {
-	userId: { type: Schema.Types.ObjectId, ref: 'User' },
-	score: Number,
+	userId: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		required: 'userId is required',
+	},
+	score: { type: Number, required: 'score of the highscorer user is required' },
 };
 
 const QuizSchema = new Schema({
-	name: String,
-	image: String,
-	totalQuestions: Number,
+	name: { type: String, required: 'Name of the Quiz is required' },
+	image: { type: String, required: 'Image of the Quiz is required' },
+	totalQuestions: {
+		type: Number,
+		required: 'Number of questions in the Quiz is required',
+	},
 	questions: [QuestionSchema],
-	type: String,
-	level: String,
+	category: {
+		type: Schema.Types.ObjectId,
+		ref: 'Category',
+		required: 'Category id of the Quiz is required',
+	},
+	level: { type: String, required: 'Level of the Quiz  is required' },
 	highScore: [UserScoreSchema],
 });
 
