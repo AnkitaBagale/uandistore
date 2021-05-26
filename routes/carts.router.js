@@ -8,15 +8,15 @@ const {
 	updateAddressIdInCart,
 } = require('../controllers/carts.controller');
 
-router.param('userid', getUserFromDb);
+router.param('userId', getUserFromDb);
 
-router.param('userid', getOrCreateCartOfUserFromDb);
+router.param('userId', getOrCreateCartOfUserFromDb);
 
 router
-	.route('/:userid/cart')
+	.route('/:userId/cart')
 	.get(populateCartFromDb)
 	.post(addOrUpdateProductInCart);
 
-router.route('/:userid/cart/address').post(updateAddressIdInCart);
+router.route('/:userId/cart/address').post(updateAddressIdInCart);
 
 module.exports = router;

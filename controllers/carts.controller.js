@@ -78,13 +78,13 @@ const addOrUpdateProductInCart = async (req, res) => {
 			(product) => product.productId == productUpdates._id,
 		);
 
-		// if product is already present in the wishlist then updating that particular product
+		// if product is already present in the cart then updating that particular product
 		if (isProductAlreadyAdded) {
-			for (let product of cart.products) {
-				if (productUpdates._id == product.productId) {
-					product = extend(product, productUpdates);
-				}
-			}
+			cart.products = cart.products.map((product) =>
+				productUpdates._id == product.productId
+					? extend(product, productUpdates)
+					: product,
+			);
 		} else {
 			cart.products.push({
 				productId: productUpdates._id,

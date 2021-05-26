@@ -82,6 +82,7 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 		} else {
 			wishlist.products.push({ productId: productUpdates._id, active: true });
 		}
+
 		let updatedWishlistFromDb = await wishlist.save();
 		updatedWishlistFromDb = await updatedWishlistFromDb
 			.populate({

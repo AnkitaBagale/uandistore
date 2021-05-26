@@ -2,6 +2,10 @@ const { User } = require('../models/user.model');
 const { extend } = require('lodash');
 const { Note } = require('../models/note.model');
 const { Playlist } = require('../models/playlist.model');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const JWT_KEY = process.env.JWT_KEY;
 
 const createNewUser = async (req, res) => {
 	try {
@@ -18,6 +22,9 @@ const createNewUser = async (req, res) => {
 		}
 
 		const NewUser = new User(userData);
+
+		const salt = await bcrypt.genSalt(10);
+		NewUser.password = await bcrypt.hash(NewUser.password, salt);
 		const addedUserDataFromDb = await NewUser.save();
 
 		res.status(201).json({
@@ -43,14 +50,19 @@ const checkAuthenticationOfUser = async (req, res) => {
 
 		if (!user) {
 			res.status(401).json({ message: 'email is incorrect!' });
-			return;
-		} else if (user.password === password) {
-			res.status(200).json({
-				response: { firstname: user.firstname, userId: user._id },
-			});
-			return;
+		} else {
+			const isValidPassword = await bcrypt.compare(password, user.password);
+			if (isValidPassword) {
+				const token = jwt.sign({ userId: user._id }, JWT_KEY, {
+					expiresIn: '24h',
+				});
+				res.status(200).json({
+					response: { firstname: user.firstname, userId: user._id, token },
+				});
+			} else {
+				res.status(401).json({ message: 'Password is incorrect!' });
+			}
 		}
-		res.status(401).json({ message: 'Password is incorrect!' });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
@@ -80,6 +92,7 @@ const updateUserDetails = async (req, res) => {
 		user = extend(user, userUpdates);
 
 		user = await user.save();
+
 		res.status(200).json({
 			response: {
 				email: user.email,

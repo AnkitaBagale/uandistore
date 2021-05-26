@@ -27,7 +27,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const port = 8000;
+const PORT = 8000;
 
 initializeConnectionToDb();
 
@@ -62,6 +62,6 @@ app.use(routeNotFoundHandler);
  */
 app.use(allErrorsHandler);
 
-app.listen(process.env.PORT || port, () => {
+app.listen(process.env.PORT || PORT, () => {
 	console.log(`server started`);
 });

@@ -8,12 +8,12 @@ const {
 	addOrUpdateProductInWishlist,
 } = require('../controllers/wishlists.controller');
 
-router.param('userid', getUserByIdFromDb);
+router.param('userId', getUserByIdFromDb);
 
-router.param('userid', getOrCreateWishlistFromDb);
+router.param('userId', getOrCreateWishlistFromDb);
 
 router
-	.route('/:userid/wishlist')
+	.route('/:userId/wishlist')
 	.get(populateWishlistFromDb)
 	.post(addOrUpdateProductInWishlist);
 
