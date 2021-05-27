@@ -6,6 +6,7 @@ const cors = require('cors');
 const products = require('./routes/products.router');
 const carts = require('./routes/carts.router');
 const users = require('./routes/users.router');
+const authentication = require('./routes/authentication.router');
 const wishlists = require('./routes/wishlists.router');
 const addresses = require('./routes/addresses.router');
 
@@ -14,12 +15,13 @@ const videos = require('./routes/videos.router');
 const notes = require('./routes/notes.router');
 const playlists = require('./routes/playlists.router');
 
-const quizzes = require('./routes/quiz.router');
+const quizzes = require('./routes/quizzes.router');
 const categories = require('./routes/categories.router');
 const quizAttempts = require('./routes/quizAttempts.router');
 
 const routeNotFoundHandler = require('./middlewares/route-not-found.middlerware');
 const allErrorsHandler = require('./middlewares/all-errors-handler.middleware');
+const authenticationVerifier = require('./middlewares/authentication-verifier.middleware');
 const initializeConnectionToDb = require('./db/db.connect');
 
 const app = express();
@@ -36,18 +38,23 @@ app.get('/', (req, res) => {
 });
 
 app.use('/products', products);
-app.use('/wishlists', wishlists);
-app.use('/carts', carts);
-app.use('/users', users);
-app.use('/users', addresses);
-
-app.use('/tutors', tutors);
 app.use('/videos', videos);
-app.use('/notes', notes);
-app.use('/playlists', playlists);
-
+app.use('/tutors', tutors);
 app.use('/quizzes', quizzes);
 app.use('/categories', categories);
+app.use('/users', authentication);
+
+/**
+ * Authentication verifier middleware, please do not move
+ */
+
+app.use(authenticationVerifier);
+app.use('/users', users);
+app.use('/wishlist', wishlists);
+app.use('/cart', carts);
+app.use('/addresses', addresses);
+app.use('/notes', notes);
+app.use('/playlists', playlists);
 app.use('/quiz-attempts', quizAttempts);
 
 /**

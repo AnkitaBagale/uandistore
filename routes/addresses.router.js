@@ -8,11 +8,8 @@ const {
 	deleteAddress,
 } = require('../controllers/addresses.controller');
 
-router.route('/:userId/addresses').get(getAllAddressesOfUser);
-router.route('/:userId/addresses').post(createNewAddress);
+router.route('/').get(getAllAddressesOfUser).post(createNewAddress);
 
-router.route('/:userId/addresses/:addressId').post(updateAddress);
-
-router.route('/:userId/addresses/:addressId').delete(deleteAddress);
+router.route('/:addressId').post(updateAddress).delete(deleteAddress);
 
 module.exports = router;

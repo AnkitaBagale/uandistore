@@ -1,5 +1,4 @@
 const { User } = require('../models/user.model');
-const { extend } = require('lodash');
 const { Note } = require('../models/note.model');
 const { Playlist } = require('../models/playlist.model');
 const jwt = require('jsonwebtoken');
@@ -22,17 +21,11 @@ const createNewUser = async (req, res) => {
 		}
 
 		const NewUser = new User(userData);
-
 		const salt = await bcrypt.genSalt(10);
 		NewUser.password = await bcrypt.hash(NewUser.password, salt);
-		const addedUserDataFromDb = await NewUser.save();
+		await NewUser.save();
 
-		res.status(201).json({
-			response: {
-				firstname: addedUserDataFromDb.firstname,
-				userId: addedUserDataFromDb._id,
-			},
-		});
+		res.status(201).json({ message: 'User is signed up!' });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
@@ -47,11 +40,11 @@ const checkAuthenticationOfUser = async (req, res) => {
 		const email = req.get('email');
 		const password = req.get('password');
 		const user = await User.findOne({ email });
-
 		if (!user) {
 			res.status(401).json({ message: 'email is incorrect!' });
 		} else {
 			const isValidPassword = await bcrypt.compare(password, user.password);
+
 			if (isValidPassword) {
 				const token = jwt.sign({ userId: user._id }, JWT_KEY, {
 					expiresIn: '24h',
@@ -72,34 +65,22 @@ const checkAuthenticationOfUser = async (req, res) => {
 	}
 };
 
-const getUserByEmailFromDb = async (req, res, next, id) => {
-	const user = await User.findOne({ email: id });
-
-	if (!user) {
-		res.status(404).json({ message: 'email does not exist!' });
-		return;
-	}
-	req.user = user;
-	next();
-};
-
-const updateUserDetails = async (req, res) => {
+const updatePassword = async (req, res) => {
 	try {
-		let { user } = req;
+		const user = req.body;
+		let userFromDb = await User.findOne({ email: user.email });
 
-		const userUpdates = req.body;
+		if (!userFromDb) {
+			res.status(401).json({ message: 'User does not exist' });
+		}
 
-		user = extend(user, userUpdates);
+		const salt = await bcrypt.genSalt(10);
+		userFromDb.password = await bcrypt.hash(user.password, salt);
 
-		user = await user.save();
+		userFromDb = await userFromDb.save();
 
 		res.status(200).json({
-			response: {
-				email: user.email,
-				firstname: user.firstname,
-				lastname: user.lastname,
-				userId: user._id,
-			},
+			message: 'User details updated!',
 		});
 	} catch (error) {
 		console.error(error);
@@ -110,23 +91,15 @@ const updateUserDetails = async (req, res) => {
 	}
 };
 
-const getUserByIdFromDb = async (req, res) => {
+const getUserDetailsFromDb = async (req, res) => {
 	try {
-		const { userId } = req.params;
-
-		const user = await User.findById({ _id: userId });
-
-		if (!user) {
-			res.status(404).json({ message: 'email does not exist!' });
-			return;
-		}
+		const { user } = req;
 
 		res.status(200).json({
 			response: {
 				email: user.email,
 				firstname: user.firstname,
 				lastname: user.lastname,
-				userId: user._id,
 			},
 		});
 	} catch (error) {
@@ -224,9 +197,8 @@ const getOrCreatePlaylistsOfUser = async (req, res) => {
 module.exports = {
 	createNewUser,
 	checkAuthenticationOfUser,
-	getUserByEmailFromDb,
-	updateUserDetails,
-	getUserByIdFromDb,
+	getUserDetailsFromDb,
+	updatePassword,
 	getNotesOfVideoOfUserFromDb,
 	getOrCreatePlaylistsOfUser,
 };

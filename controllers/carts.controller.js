@@ -2,30 +2,10 @@ const { Cart } = require('../models/cart.model');
 const { User } = require('../models/user.model');
 const { extend } = require('lodash');
 
-const getUserFromDb = async (req, res, next, id) => {
-	try {
-		const user = await User.findById({ _id: id });
-
-		if (!user) {
-			res.status(404).json({
-				message: 'No user found associated, please check the user id!',
-			});
-			return;
-		}
-		req.user = user;
-		next();
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			message: 'Request failed please check errorMessage key for more details',
-			errorMessage: error.message,
-		});
-	}
-};
-
 const getOrCreateCartOfUserFromDb = async (req, res, next, id) => {
 	try {
-		let cart = await Cart.findOne({ userId: id });
+		const { userId } = req;
+		let cart = await Cart.findOne({ userId });
 
 		if (!cart) {
 			cart = new Cart({ userId: id, products: [] });
@@ -44,6 +24,7 @@ const getOrCreateCartOfUserFromDb = async (req, res, next, id) => {
 
 const populateCartFromDb = async (req, res) => {
 	try {
+		const { userId } = req;
 		let { cart } = req;
 		cart = await cart
 			.populate({
@@ -71,6 +52,7 @@ const populateCartFromDb = async (req, res) => {
 
 const addOrUpdateProductInCart = async (req, res) => {
 	try {
+		const { userId } = req;
 		const productUpdates = req.body;
 		const { cart } = req;
 
@@ -121,6 +103,7 @@ const addOrUpdateProductInCart = async (req, res) => {
 
 const updateAddressIdInCart = async (req, res) => {
 	try {
+		const { userId } = req;
 		addressId = req.body;
 		let { cart } = req;
 		cart.addressId = addressId._id;
@@ -151,7 +134,6 @@ const updateAddressIdInCart = async (req, res) => {
 };
 
 module.exports = {
-	getUserFromDb,
 	getOrCreateCartOfUserFromDb,
 	populateCartFromDb,
 	addOrUpdateProductInCart,
