@@ -16,8 +16,6 @@ router
 				.lean()
 				.populate({ path: 'category', select: 'name' });
 
-			console.log(quizzes);
-
 			const normalizedData = quizzes.map((item) => ({
 				...item,
 				category: item.category.name,
@@ -87,10 +85,16 @@ router
 			const normalizedData = {
 				...quiz,
 				category: quiz.category.name,
-				highScore: quiz.highScore.map((item) => ({
-					...item,
-					userId: item.userId.firstname + ' ' + item.userId.lastname,
-				})),
+				highScore: quiz.highScore.map((item) => {
+					const userName = item?.userId?.firstname
+						? item?.userId?.firstname + ' ' + item?.userId?.lastname
+						: 'Unknown';
+
+					return {
+						...item,
+						userId: userName,
+					};
+				}),
 			};
 			res.status(200).json({ response: normalizedData });
 		} catch (error) {

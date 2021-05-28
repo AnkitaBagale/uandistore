@@ -7,7 +7,7 @@ const {
 	updateAddressIdInCart,
 } = require('../controllers/carts.controller');
 
-router.param('userId', getOrCreateCartOfUserFromDb);
+router.use(getOrCreateCartOfUserFromDb);
 
 router.route('/').get(populateCartFromDb).post(addOrUpdateProductInCart);
 

@@ -1,17 +1,17 @@
 const { Cart } = require('../models/cart.model');
-const { User } = require('../models/user.model');
 const { extend } = require('lodash');
 
-const getOrCreateCartOfUserFromDb = async (req, res, next, id) => {
+const getOrCreateCartOfUserFromDb = async (req, res, next) => {
 	try {
-		const { userId } = req;
+		const userId = req.user._id;
 		let cart = await Cart.findOne({ userId });
 
 		if (!cart) {
-			cart = new Cart({ userId: id, products: [] });
+			cart = new Cart({ userId, products: [] });
 			cart = await cart.save();
 		}
 		req.cart = cart;
+
 		next();
 	} catch (error) {
 		console.error(error);
@@ -24,8 +24,8 @@ const getOrCreateCartOfUserFromDb = async (req, res, next, id) => {
 
 const populateCartFromDb = async (req, res) => {
 	try {
-		const { userId } = req;
 		let { cart } = req;
+
 		cart = await cart
 			.populate({
 				path: 'products.productId',
@@ -33,7 +33,7 @@ const populateCartFromDb = async (req, res) => {
 			})
 			.execPopulate();
 
-		activeProductsInCart = cart.products.filter((item) => item.active);
+		const activeProductsInCart = cart.products.filter((item) => item.active);
 
 		res.status(200).json({
 			response: {
@@ -52,7 +52,6 @@ const populateCartFromDb = async (req, res) => {
 
 const addOrUpdateProductInCart = async (req, res) => {
 	try {
-		const { userId } = req;
 		const productUpdates = req.body;
 		const { cart } = req;
 
@@ -82,7 +81,7 @@ const addOrUpdateProductInCart = async (req, res) => {
 			})
 			.execPopulate();
 
-		activeProductsInCart = updatedCartFromDb.products.filter(
+		const activeProductsInCart = updatedCartFromDb.products.filter(
 			(item) => item.active,
 		);
 
@@ -103,7 +102,6 @@ const addOrUpdateProductInCart = async (req, res) => {
 
 const updateAddressIdInCart = async (req, res) => {
 	try {
-		const { userId } = req;
 		addressId = req.body;
 		let { cart } = req;
 		cart.addressId = addressId._id;

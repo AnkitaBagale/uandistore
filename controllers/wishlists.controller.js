@@ -1,33 +1,13 @@
 const { Wishlist } = require('../models/wishlist.model');
 const { User } = require('../models/user.model');
 
-const getUserByIdFromDb = async (req, res, next, id) => {
+const getOrCreateWishlistFromDb = async (req, res, next) => {
 	try {
-		const user = await User.findById({ _id: id });
-
-		if (!user) {
-			res.status(404).json({
-				message: 'No user found associated, please check the user id!',
-			});
-			return;
-		}
-		req.user = user;
-		next();
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			message: 'Request failed please check errorMessage key for more details',
-			errorMessage: error.message,
-		});
-	}
-};
-
-const getOrCreateWishlistFromDb = async (req, res, next, id) => {
-	try {
-		let wishlist = await Wishlist.findOne({ userId: id });
+		let userId = req.user._id;
+		let wishlist = await Wishlist.findOne({ userId });
 
 		if (!wishlist) {
-			wishlist = new Wishlist({ userId: id, products: [] });
+			wishlist = new Wishlist({ userId, products: [] });
 			wishlist = await wishlist.save();
 		}
 		req.wishlist = wishlist;
@@ -106,7 +86,6 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 };
 
 module.exports = {
-	getUserByIdFromDb,
 	getOrCreateWishlistFromDb,
 	populateWishlistFromDb,
 	addOrUpdateProductInWishlist,
