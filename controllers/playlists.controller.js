@@ -1,15 +1,87 @@
 const { Playlist } = require('../models/playlist.model');
 const { extend } = require('lodash');
 
+const getOrCreatePlaylistsOfUser = async (req, res) => {
+	try {
+		const userId = req.user._id;
+
+		let playlists = await Playlist.find({ userId }, { userId: 0 }).populate({
+			path: 'videoList.videoId',
+			populate: { path: 'tutorId' },
+		});
+
+		if (playlists.length === 0) {
+			let watchlaterPlaylist = new Playlist({
+				userId,
+				type: 'watchlater',
+				isDefault: true,
+				videoList: [],
+			});
+			let historyPlaylist = new Playlist({
+				userId,
+				type: 'history',
+				isDefault: true,
+				videoList: [],
+			});
+			let likedPlaylist = new Playlist({
+				userId,
+				type: 'liked',
+				isDefault: true,
+				videoList: [],
+			});
+			await Playlist.insertMany([
+				watchlaterPlaylist,
+				historyPlaylist,
+				likedPlaylist,
+			]);
+			watchlaterPlaylist.userId = undefined;
+			historyPlaylist.userId = undefined;
+			likedPlaylist.userId = undefined;
+			res.status(201).json({
+				response: {
+					watchlaterPlaylist,
+					historyPlaylist,
+					likedPlaylist,
+					customPlaylist: [],
+				},
+			});
+			return;
+		}
+
+		const historyPlaylist = playlists.find((item) => item.type === 'history');
+		const likedPlaylist = playlists.find((item) => item.type === 'liked');
+		const watchlaterPlaylist = playlists.find(
+			(item) => item.type === 'watchlater',
+		);
+		const customPlaylist = playlists.filter((item) => item.type === 'custom');
+
+		res.status(200).json({
+			response: {
+				watchlaterPlaylist,
+				historyPlaylist,
+				likedPlaylist,
+				customPlaylist,
+			},
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({
+			message: 'Something went wrong',
+			errorMessage: error.message,
+		});
+	}
+};
+
 const createNewPlaylist = async (req, res) => {
 	try {
 		let newPlaylist = req.body;
-		newPlaylist = new Playlist(newPlaylist);
+		const userId = req.user._id;
+		newPlaylist = new Playlist({ ...newPlaylist, userId });
 		newPlaylist = await newPlaylist.save();
 		newPlaylist = await newPlaylist
 			.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 			.execPopulate();
-
+		newPlaylist.userId = undefined;
 		res.status(201).json({ response: newPlaylist });
 	} catch (error) {
 		console.error(error);
@@ -22,7 +94,14 @@ const createNewPlaylist = async (req, res) => {
 
 const getPlaylistFromDb = async (req, res, next, id) => {
 	try {
-		const playlist = await Playlist.findById(id);
+		const userId = req.user._id;
+		const playlist = await Playlist.findOne({ _id: id, userId });
+
+		if (!playlist) {
+			res
+				.status(404)
+				.json({ message: 'Playlist is not associated with the user' });
+		}
 		req.playlist = playlist;
 		next();
 	} catch (error) {
@@ -43,6 +122,7 @@ const updatePlaylist = async (req, res) => {
 		playlist = await playlist
 			.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 			.execPopulate();
+		playlist.userId = undefined;
 		res.status(200).json({ response: playlist });
 	} catch (error) {
 		console.error(error);
@@ -60,6 +140,7 @@ const deletePlaylist = async (req, res) => {
 			throw new Error('Cannot delete default playlist');
 		}
 		await playlist.remove();
+		playlist.userId = undefined;
 		res.status(200).json({ response: playlist });
 	} catch (error) {
 		console.error(error);
@@ -92,6 +173,7 @@ const addOrRemoveVideoFromPlaylist = async (req, res) => {
 		playlist = await playlist
 			.populate({ path: 'videoList.videoId', populate: { path: 'tutorId' } })
 			.execPopulate();
+		playlist.userId = undefined;
 		res.status(201).json({ response: playlist });
 	} catch (error) {
 		console.error(error);
@@ -103,6 +185,7 @@ const addOrRemoveVideoFromPlaylist = async (req, res) => {
 };
 
 module.exports = {
+	getOrCreatePlaylistsOfUser,
 	createNewPlaylist,
 	getPlaylistFromDb,
 	updatePlaylist,

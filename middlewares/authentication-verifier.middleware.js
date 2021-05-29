@@ -4,7 +4,8 @@ const { User } = require('../models/user.model');
 
 const authenticationVerifier = async (req, res, next) => {
 	try {
-		const token = req.headers.authorization;
+		const tokenWithBearer = req.headers.authorization;
+		const token = tokenWithBearer.split(' ')[1];
 		const decoded = jwt.verify(token, JWT_KEY);
 
 		userId = decoded.userId;

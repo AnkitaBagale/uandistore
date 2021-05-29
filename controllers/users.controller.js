@@ -1,6 +1,5 @@
 const { User } = require('../models/user.model');
-const { Note } = require('../models/note.model');
-const { Playlist } = require('../models/playlist.model');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -41,7 +40,7 @@ const checkAuthenticationOfUser = async (req, res) => {
 		const password = req.get('password');
 		const user = await User.findOne({ email });
 		if (!user) {
-			res.status(401).json({ message: 'email is incorrect!' });
+			res.status(401).json({ message: 'Email or password is incorrect!' });
 		} else {
 			const isValidPassword = await bcrypt.compare(password, user.password);
 
@@ -50,10 +49,10 @@ const checkAuthenticationOfUser = async (req, res) => {
 					expiresIn: '24h',
 				});
 				res.status(200).json({
-					response: { firstname: user.firstname, userId: user._id, token },
+					response: { firstname: user.firstname, token },
 				});
 			} else {
-				res.status(401).json({ message: 'Password is incorrect!' });
+				res.status(401).json({ message: 'Email or password is incorrect!' });
 			}
 		}
 	} catch (error) {
@@ -111,94 +110,9 @@ const getUserDetailsFromDb = async (req, res) => {
 	}
 };
 
-const getNotesOfVideoOfUserFromDb = async (req, res) => {
-	try {
-		const { userId, videoId } = req.params;
-		const notes = await Note.find({ userId: userId, videoId: videoId });
-		res.status(200).json({ response: notes });
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			message: 'Something went wrong',
-			errorMessage: error.message,
-		});
-	}
-};
-
-const getOrCreatePlaylistsOfUser = async (req, res) => {
-	try {
-		const { userId } = req.params;
-
-		let playlists = await Playlist.find({ userId }).populate({
-			path: 'videoList.videoId',
-			populate: { path: 'tutorId' },
-		});
-
-		if (playlists.length === 0) {
-			let watchlaterPlaylist = new Playlist({
-				userId,
-				type: 'watchlater',
-				isDefault: true,
-				videoList: [],
-			});
-			let historyPlaylist = new Playlist({
-				userId,
-				type: 'history',
-				isDefault: true,
-				videoList: [],
-			});
-			let likedPlaylist = new Playlist({
-				userId,
-				type: 'liked',
-				isDefault: true,
-				videoList: [],
-			});
-			await Playlist.insertMany([
-				watchlaterPlaylist,
-				historyPlaylist,
-				likedPlaylist,
-			]);
-
-			res.status(201).json({
-				response: {
-					watchlaterPlaylist,
-					historyPlaylist,
-					likedPlaylist,
-					customPlaylist: [],
-				},
-			});
-			return;
-		}
-
-		const historyPlaylist = playlists.find((item) => item.type === 'history');
-		const likedPlaylist = playlists.find((item) => item.type === 'liked');
-		const watchlaterPlaylist = playlists.find(
-			(item) => item.type === 'watchlater',
-		);
-		const customPlaylist = playlists.filter((item) => item.type === 'custom');
-
-		res.status(200).json({
-			response: {
-				watchlaterPlaylist,
-				historyPlaylist,
-				likedPlaylist,
-				customPlaylist,
-			},
-		});
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			message: 'Something went wrong',
-			errorMessage: error.message,
-		});
-	}
-};
-
 module.exports = {
 	createNewUser,
 	checkAuthenticationOfUser,
 	getUserDetailsFromDb,
 	updatePassword,
-	getNotesOfVideoOfUserFromDb,
-	getOrCreatePlaylistsOfUser,
 };

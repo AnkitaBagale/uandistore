@@ -38,7 +38,7 @@ router
 			const categoryDocument = await Category.findById(categoryId);
 
 			if (!categoryDocument) {
-				return res.status(400).json({ message: 'category is invalid' });
+				return res.status(404).json({ message: 'category is invalid' });
 			}
 
 			let newQuiz = new Quiz(quizDetails);
