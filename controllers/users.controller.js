@@ -39,7 +39,7 @@ const checkAuthenticationOfUser = async (req, res) => {
 		const password = req.get('password');
 		const user = await User.findOne({ email });
 		if (!user) {
-			res.status(401).json({ message: 'Email or password is incorrect!' });
+			res.status(403).json({ message: 'Email or password is incorrect!' });
 		} else {
 			const isValidPassword = await bcrypt.compare(password, user.password);
 
@@ -69,7 +69,7 @@ const updatePassword = async (req, res) => {
 		let userFromDb = await User.findOne({ email: user.email });
 
 		if (!userFromDb) {
-			res.status(401).json({ message: 'User does not exist' });
+			res.status(403).json({ message: 'User does not exist' });
 		}
 
 		const salt = await bcrypt.genSalt(10);

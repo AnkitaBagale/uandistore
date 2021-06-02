@@ -6,7 +6,6 @@ const cors = require('cors');
 const products = require('./routes/products.router');
 const carts = require('./routes/carts.router');
 const users = require('./routes/users.router');
-const authentication = require('./routes/authentication.router');
 const wishlists = require('./routes/wishlists.router');
 const addresses = require('./routes/addresses.router');
 
@@ -42,14 +41,12 @@ app.use('/videos', videos);
 app.use('/tutors', tutors);
 app.use('/quizzes', quizzes);
 app.use('/categories', categories);
-app.use('/users', authentication);
+app.use('/users', users);
 
 /**
  * Authentication verifier middleware, please do not move
  */
-
 app.use(authenticationVerifier);
-app.use('/users', users);
 app.use('/wishlist', wishlists);
 app.use('/cart', carts);
 app.use('/addresses', addresses);
