@@ -51,7 +51,7 @@ const checkAuthenticationOfUser = async (req, res) => {
 					response: { firstname: user.firstname, token },
 				});
 			} else {
-				res.status(401).json({ message: 'Email or password is incorrect!' });
+				res.status(403).json({ message: 'Email or password is incorrect!' });
 			}
 		}
 	} catch (error) {
