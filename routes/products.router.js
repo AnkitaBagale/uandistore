@@ -10,4 +10,5 @@ const {
 router.route('/').get(getAllProductsFromDb).post(createNewProduct);
 
 router.route('/:id').get(getProductByIdFromDb);
+
 module.exports = router;

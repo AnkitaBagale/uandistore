@@ -4,15 +4,14 @@ const router = express.Router();
 const {
 	getAllAddressesOfUser,
 	createNewAddress,
+	getAddressFromDb,
 	updateAddress,
 	deleteAddress,
 } = require('../controllers/addresses.controller');
 
-router.route('/:userId/addresses').get(getAllAddressesOfUser);
-router.route('/:userId/addresses').post(createNewAddress);
+router.route('/').get(getAllAddressesOfUser).post(createNewAddress);
 
-router.route('/:userId/addresses/:addressId').post(updateAddress);
-
-router.route('/:userId/addresses/:addressId').delete(deleteAddress);
+router.param('addressId', getAddressFromDb);
+router.route('/:addressId').post(updateAddress).delete(deleteAddress);
 
 module.exports = router;

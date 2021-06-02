@@ -4,10 +4,10 @@ const getAllProductsFromDb = async (req, res) => {
 	try {
 		const products = await Product.find({});
 
-		res.status(200).json({ response: products, success: true });
+		res.status(200).json({ response: products });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -19,10 +19,10 @@ const createNewProduct = async (req, res) => {
 		const productData = req.body;
 		const NewProduct = new Product(productData);
 		const addedProductFromDb = await NewProduct.save();
-		res.status(201).json({ response: addedProductFromDb, success: true });
+		res.status(201).json({ response: addedProductFromDb });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -35,13 +35,13 @@ const getProductByIdFromDb = async (req, res) => {
 
 		const product = await Product.findById({ _id: productId.id });
 		if (product) {
-			res.status(200).json({ response: product, success: true });
+			res.status(200).json({ response: product });
 		} else {
-			res.status(404).json({ success: false, message: 'No product found' });
+			res.status(404).json({ message: 'No product found' });
 		}
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});

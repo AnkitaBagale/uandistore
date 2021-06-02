@@ -1,7 +1,9 @@
 const { User } = require('../models/user.model');
-const { extend } = require('lodash');
-const { Note } = require('../models/note.model');
-const { Playlist } = require('../models/playlist.model');
+
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const JWT_KEY = process.env.JWT_KEY;
 
 const createNewUser = async (req, res) => {
 	try {
@@ -11,27 +13,21 @@ const createNewUser = async (req, res) => {
 
 		if (user) {
 			res.status(409).json({
-				success: false,
-				message:
-					'Account already exists for this email, please reset password if forgotten',
+				message: 'Account already exists for this email',
 			});
 			return;
 		}
 
 		const NewUser = new User(userData);
-		const addedUserDataFromDb = await NewUser.save();
+		const salt = await bcrypt.genSalt(10);
+		NewUser.password = await bcrypt.hash(NewUser.password, salt);
+		await NewUser.save();
 
-		res.status(201).json({
-			response: {
-				firstname: addedUserDataFromDb.firstname,
-				userId: addedUserDataFromDb._id,
-			},
-			success: true,
-		});
+		res.status(201).json({ message: 'User is signed up!' });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
-			message: 'Request failed please check errorMessage key for more details',
+			message: 'Something went wrong!',
 			errorMessage: error.message,
 		});
 	}
@@ -42,59 +38,71 @@ const checkAuthenticationOfUser = async (req, res) => {
 		const email = req.get('email');
 		const password = req.get('password');
 		const user = await User.findOne({ email });
-
 		if (!user) {
-			res.status(401).json({ success: false, message: 'email is incorrect!' });
-			return;
-		} else if (user.password === password) {
-			res.status(200).json({
-				response: { firstname: user.firstname, userId: user._id },
-				success: true,
-			});
-			return;
+			res.status(403).json({ message: 'Email or password is incorrect!' });
+		} else {
+			const isValidPassword = await bcrypt.compare(password, user.password);
+
+			if (isValidPassword) {
+				const token = jwt.sign({ userId: user._id }, JWT_KEY, {
+					expiresIn: '24h',
+				});
+				res.status(200).json({
+					response: { firstname: user.firstname, token },
+				});
+			} else {
+				res.status(403).json({ message: 'Email or password is incorrect!' });
+			}
 		}
-		res.status(401).json({ message: 'Password is incorrect!', success: false });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
-			message: 'Request failed please check errorMessage key for more details',
+			message: 'Something went wrong!',
 			errorMessage: error.message,
 		});
 	}
 };
 
-const getUserByEmailFromDb = async (req, res, next, id) => {
-	const user = await User.findOne({ email: id });
+const updatePassword = async (req, res) => {
+	try {
+		const user = req.body;
+		let userFromDb = await User.findOne({ email: user.email });
 
-	if (!user) {
-		res.status(404).json({ success: false, message: 'email does not exist!' });
-		return;
+		if (!userFromDb) {
+			res.status(403).json({ message: 'User does not exist' });
+		}
+
+		const salt = await bcrypt.genSalt(10);
+		userFromDb.password = await bcrypt.hash(user.password, salt);
+
+		userFromDb = await userFromDb.save();
+
+		res.status(200).json({
+			message: 'User details updated!',
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({
+			message: 'Something went wrong!',
+			errorMessage: error.message,
+		});
 	}
-	req.user = user;
-	next();
 };
 
-const updateUserDetails = async (req, res) => {
+const getUserDetailsFromDb = async (req, res) => {
 	try {
-		let { user } = req;
+		const { user } = req;
 
-		const userUpdates = req.body;
-
-		user = extend(user, userUpdates);
-
-		user = await user.save();
 		res.status(200).json({
 			response: {
 				email: user.email,
 				firstname: user.firstname,
 				lastname: user.lastname,
-				userId: user._id,
 			},
-			success: true,
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -104,6 +112,6 @@ const updateUserDetails = async (req, res) => {
 module.exports = {
 	createNewUser,
 	checkAuthenticationOfUser,
-	getUserByEmailFromDb,
-	updateUserDetails,
+	getUserDetailsFromDb,
+	updatePassword,
 };

@@ -1,41 +1,20 @@
 const { Wishlist } = require('../models/wishlist.model');
 const { User } = require('../models/user.model');
 
-const getUserByIdFromDb = async (req, res, next, id) => {
+const getOrCreateWishlistFromDb = async (req, res, next) => {
 	try {
-		const user = await User.findById({ _id: id });
-
-		if (!user) {
-			res.status(404).json({
-				success: false,
-				message: 'No user found associated, please check the user id!',
-			});
-			return;
-		}
-		req.user = user;
-		next();
-	} catch (error) {
-		res.status(500).json({
-			success: false,
-			message: 'Request failed please check errorMessage key for more details',
-			errorMessage: error.message,
-		});
-	}
-};
-
-const getOrCreateWishlistFromDb = async (req, res, next, id) => {
-	try {
-		let wishlist = await Wishlist.findOne({ userId: id });
+		let userId = req.user._id;
+		let wishlist = await Wishlist.findOne({ userId });
 
 		if (!wishlist) {
-			wishlist = new Wishlist({ userId: id, products: [] });
+			wishlist = new Wishlist({ userId, products: [] });
 			wishlist = await wishlist.save();
 		}
 		req.wishlist = wishlist;
 		next();
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -53,11 +32,11 @@ const populateWishlistFromDb = async (req, res) => {
 			.execPopulate();
 
 		activeProductsInWishlist = wishlist.products.filter((item) => item.active);
-		res.status(200).json({ response: activeProductsInWishlist, success: true });
+		res.status(200).json({ response: activeProductsInWishlist });
 	} catch (error) {
 		console.error(error);
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -83,6 +62,7 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 		} else {
 			wishlist.products.push({ productId: productUpdates._id, active: true });
 		}
+
 		let updatedWishlistFromDb = await wishlist.save();
 		updatedWishlistFromDb = await updatedWishlistFromDb
 			.populate({
@@ -95,10 +75,10 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 			(item) => item.active,
 		);
 
-		res.status(200).json({ response: activeProductsInWishlist, success: true });
+		res.status(200).json({ response: activeProductsInWishlist });
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			success: false,
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -106,7 +86,6 @@ const addOrUpdateProductInWishlist = async (req, res) => {
 };
 
 module.exports = {
-	getUserByIdFromDb,
 	getOrCreateWishlistFromDb,
 	populateWishlistFromDb,
 	addOrUpdateProductInWishlist,
