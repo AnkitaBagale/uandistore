@@ -13,8 +13,7 @@ const createNewUser = async (req, res) => {
 
 		if (user) {
 			res.status(409).json({
-				message:
-					'Account already exists for this email, please reset password if forgotten',
+				message: 'Account already exists for this email',
 			});
 			return;
 		}
@@ -28,7 +27,7 @@ const createNewUser = async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			message: 'Request failed please check errorMessage key for more details',
+			message: 'Something went wrong!',
 			errorMessage: error.message,
 		});
 	}
@@ -58,7 +57,7 @@ const checkAuthenticationOfUser = async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			message: 'Request failed please check errorMessage key for more details',
+			message: 'Something went wrong!',
 			errorMessage: error.message,
 		});
 	}
@@ -84,7 +83,7 @@ const updatePassword = async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
-			message: 'Request failed please check errorMessage key for more details',
+			message: 'Something went wrong!',
 			errorMessage: error.message,
 		});
 	}
