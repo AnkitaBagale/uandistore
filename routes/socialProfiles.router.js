@@ -118,7 +118,7 @@ router
 				res.status(403).json({ message: 'Invalid user id' });
 				return;
 			}
-			console.log({ userDetails });
+
 			userDetails = getSocialProfileCleaned(userDetails, viewer._id);
 			res.json({ response: userDetails });
 		} catch (error) {
