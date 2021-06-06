@@ -48,7 +48,10 @@ const checkAuthenticationOfUser = async (req, res) => {
 					expiresIn: '24h',
 				});
 				res.status(200).json({
-					response: { firstname: user.firstname, token },
+					response: {
+						firstname: user.firstname,
+						token,
+					},
 				});
 			} else {
 				res.status(403).json({ message: 'Email or password is incorrect!' });

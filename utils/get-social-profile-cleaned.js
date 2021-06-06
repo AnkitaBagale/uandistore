@@ -1,6 +1,6 @@
 const getSocialProfileCleaned = (userDetails, viewerId) => {
-	userDetails._doc.followingViewer = userDetails.following.includes[viewerId];
-	userDetails._doc.followedByViewer = userDetails.followers.includes[viewerId];
+	userDetails._doc.followingViewer = userDetails.following.includes(viewerId);
+	userDetails._doc.followedByViewer = userDetails.followers.includes(viewerId);
 	userDetails._doc.count = {
 		followers: userDetails.followers.length,
 		following: userDetails.following.length,
@@ -13,7 +13,7 @@ const getSocialProfileCleaned = (userDetails, viewerId) => {
 	userDetails.followers = undefined;
 	userDetails.following = undefined;
 	userDetails.__v = undefined;
-
+	console.log('i was here', userDetails._doc);
 	return userDetails;
 };
 

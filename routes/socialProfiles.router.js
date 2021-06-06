@@ -2,6 +2,8 @@ const express = require('express');
 const { SocialProfile } = require('../models/socialProfile.model');
 const { User } = require('../models/user.model');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const JWT_KEY = process.env.JWT_KEY;
 const authenticationVerifier = require('../middlewares/authentication-verifier.middleware');
 const { extend } = require('lodash');
 const router = express.Router();
@@ -95,6 +97,53 @@ router.route('/signup').post(async (req, res) => {
 		console.log(error);
 		res.json({
 			message: 'Request failed please check errorMessage key for more details',
+			errorMessage: error.message,
+		});
+	}
+});
+
+router.route('/login').post(async (req, res) => {
+	try {
+		const email = req.get('email');
+		const password = req.get('password');
+		const user = await User.findOne({ email });
+
+		if (!user) {
+			res.status(403).json({ message: 'Email or password is incorrect!' });
+			return;
+		}
+		const isValidPassword = await bcrypt.compare(password, user.password);
+
+		if (!isValidPassword) {
+			res.status(403).json({ message: 'Email or password is incorrect!' });
+			return;
+		}
+
+		const socialProfile = await SocialProfile.findOne({ userId: user._id });
+
+		if (!socialProfile) {
+			res
+				.status(403)
+				.json({ message: 'User does not exists! Please Sign up!' });
+			return;
+		}
+
+		const token = jwt.sign({ userId: user._id }, JWT_KEY, {
+			expiresIn: '24h',
+		});
+
+		res.status(200).json({
+			response: {
+				name: user.firstname + ' ' + user.lastname,
+				token,
+				userId: socialProfile._id,
+				userName: socialProfile.userName,
+			},
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({
+			message: 'Something went wrong!',
 			errorMessage: error.message,
 		});
 	}
@@ -218,7 +267,6 @@ router
 
 			await viewer.save();
 			await userDetails.save();
-
 			res.status(200).json({ message: 'Operation Successful!' });
 		} catch (error) {
 			console.log(error);

@@ -30,7 +30,7 @@ router
 			});
 		} catch (error) {
 			console.log(error);
-			res.json({
+			res.status(500).json({
 				message:
 					'Request failed please check errorMessage key for more details',
 				errorMessage: error.message,
@@ -63,7 +63,7 @@ router
 			});
 		} catch (error) {
 			console.log(error);
-			res.json({
+			res.status(500).json({
 				message:
 					'Request failed please check errorMessage key for more details',
 				errorMessage: error.message,
@@ -84,7 +84,7 @@ router
 			res.status(200).json({ response: post.likes });
 		} catch (error) {
 			console.log(error);
-			res.json({
+			res.status(500).json({
 				message:
 					'Request failed please check errorMessage key for more details',
 				errorMessage: error.message,
@@ -114,7 +114,7 @@ router
 			res.status(200).json({ message: 'Operation successful!' });
 		} catch (error) {
 			console.log(error);
-			res.json({
+			res.status(500).json({
 				message:
 					'Request failed please check errorMessage key for more details',
 				errorMessage: error.message,
