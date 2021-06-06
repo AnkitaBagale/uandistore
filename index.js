@@ -19,6 +19,7 @@ const categories = require('./routes/categories.router');
 const quizAttempts = require('./routes/quizAttempts.router');
 
 const socialProfiles = require('./routes/socialProfiles.router');
+const posts = require('./routes/posts.router');
 
 const routeNotFoundHandler = require('./middlewares/route-not-found.middlerware');
 const allErrorsHandler = require('./middlewares/all-errors-handler.middleware');
@@ -45,6 +46,7 @@ app.use('/quizzes', quizzes);
 app.use('/categories', categories);
 app.use('/users', users);
 app.use('/social-profiles', socialProfiles);
+app.use('/posts', posts);
 
 /**
  * Authentication verifier middleware, please do not move
