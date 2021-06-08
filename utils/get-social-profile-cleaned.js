@@ -13,7 +13,7 @@ const getSocialProfileCleaned = (userDetails, viewerId) => {
 	userDetails.followers = undefined;
 	userDetails.following = undefined;
 	userDetails.__v = undefined;
-	console.log('i was here', userDetails._doc);
+
 	return userDetails;
 };
 
