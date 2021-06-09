@@ -5,6 +5,9 @@ const { extend } = require('lodash');
 const { SocialProfile } = require('../models/socialProfile.model');
 const { User } = require('../models/user.model');
 const {
+	getNameFromSocialProfile,
+} = require('../utils/get-name-from-social-profile');
+const {
 	getSocialProfileCleaned,
 } = require('../utils/get-social-profile-cleaned');
 
@@ -35,7 +38,7 @@ const verifyUserInUandIUsersCollection = async (req, res, next) => {
 		}
 	} catch (error) {
 		console.log(error);
-		res.json({
+		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -56,10 +59,10 @@ const signUpWithUandI = async (req, res) => {
 		}
 		const newProfile = new SocialProfile(userData);
 		await newProfile.save();
-		res.status(201).json({ message: 'Account created successfully!' });
+		res.status(201).json({ response: 'Account created successfully!' });
 	} catch (error) {
 		console.log(error);
-		res.json({
+		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -91,10 +94,10 @@ const createUserInUandIUsersandSocialProfile = async (req, res) => {
 		await newUser.save();
 		const newProfile = new SocialProfile({ ...userData, userId: newUser._id });
 		await newProfile.save();
-		res.status(201).json({ message: 'Account created successfully!' });
+		res.status(201).json({ response: 'Account created successfully!' });
 	} catch (error) {
 		console.log(error);
-		res.json({
+		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -148,6 +151,27 @@ const loginUserInSocialMedia = async (req, res) => {
 	}
 };
 
+const getAllUsersFromDb = async (req, res) => {
+	try {
+		let users = await SocialProfile.find({}, { userName: 1, userId: 1 })
+			.lean()
+			.populate({
+				path: 'userId',
+				select: 'firstname lastname',
+			});
+		for (let user of users) {
+			user = getNameFromSocialProfile(user);
+		}
+		res.status(200).json({ response: users });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			message: 'Request failed please check errorMessage key for more details',
+			errorMessage: error.message,
+		});
+	}
+};
+
 const getUserProfileFromDb = async (req, res) => {
 	try {
 		const userId = req.user._id;
@@ -166,10 +190,10 @@ const getUserProfileFromDb = async (req, res) => {
 		}
 
 		userDetails = getSocialProfileCleaned(userDetails, viewer._id);
-		res.json({ response: userDetails });
+		res.status(200).json({ response: userDetails });
 	} catch (error) {
 		console.log(error);
-		res.json({
+		res.status(500).json({
 			message: 'Request failed please check errorMessage key for more details',
 			errorMessage: error.message,
 		});
@@ -179,8 +203,8 @@ const getUserProfileFromDb = async (req, res) => {
 const updateProfileOnSocialMedia = async (req, res) => {
 	try {
 		const userId = req.user._id;
-
 		const { userName } = req.params;
+		console.log({ userName });
 		let userDetails = await SocialProfile.findOne({ userName });
 
 		if (userId.toString() !== userDetails.userId.toString()) {
@@ -191,16 +215,12 @@ const updateProfileOnSocialMedia = async (req, res) => {
 		userDetails = extend(userDetails, userDetailsUpdates);
 
 		await userDetails.save();
-		await userDetails
-			.populate({
-				path: 'userId',
-				select: 'firstname lastname',
-			})
-			.execPopulate();
 
 		userDetails = getSocialProfileCleaned(userDetails, userDetails._id);
 
-		res.status(200).json({ response: userDetails });
+		res
+			.status(200)
+			.json({ response: { bio: userDetails.bio, link: userDetails.link } });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -261,7 +281,7 @@ const followOrUnfollowUser = async (req, res) => {
 
 		await viewer.save();
 		await userDetails.save();
-		res.status(200).json({ message: 'Operation Successful!' });
+		res.status(200).json({ response: 'Operation Successful!' });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -324,7 +344,7 @@ const removeUserFromFollowingList = async (req, res) => {
 		await viewer.save();
 		await userDetails.save();
 
-		res.status(200).json({ message: 'Operation Successful!' });
+		res.status(200).json({ response: 'Operation Successful!' });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -338,6 +358,7 @@ module.exports = {
 	signUpWithUandI,
 	createUserInUandIUsersandSocialProfile,
 	loginUserInSocialMedia,
+	getAllUsersFromDb,
 	getUserProfileFromDb,
 	updateProfileOnSocialMedia,
 	getFollowersDetailsOfUserFromDb,

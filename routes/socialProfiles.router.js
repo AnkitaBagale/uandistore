@@ -3,6 +3,7 @@ const authenticationVerifier = require('../middlewares/authentication-verifier.m
 const router = express.Router();
 
 const {
+	getAllUsersFromDb,
 	verifyUserInUandIUsersCollection,
 	signUpWithUandI,
 	createUserInUandIUsersandSocialProfile,
@@ -14,6 +15,8 @@ const {
 	removeUserFromFollowingList,
 	getFollowingDetailsOfUserFromDb,
 } = require('../controllers/socialProfiles.controller');
+
+router.route('/').get(authenticationVerifier, getAllUsersFromDb);
 
 router
 	.route('/uandi-signup-verification')

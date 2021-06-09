@@ -1,6 +1,9 @@
 const { SocialProfile } = require('../models/socialProfile.model');
 const { Post } = require('../models/post.model');
 const { getPostCleaned } = require('../utils/get-post-cleaned');
+const {
+	getNameFromSocialProfile,
+} = require('../utils/get-name-from-social-profile');
 
 const getAllPostsFromDb = async (req, res) => {
 	try {
@@ -68,10 +71,15 @@ const createNewPost = async (req, res) => {
 const getUsersWhoLikedThePost = async (req, res) => {
 	try {
 		const { postId } = req.params;
-		const post = await Post.findById(postId).populate({
-			path: 'likes',
-			populate: { path: 'likes', select: 'username' },
-		});
+		const post = await Post.findById(postId, { likes: 1 })
+			.lean()
+			.populate({
+				path: 'likes',
+				select: 'userId userName',
+				populate: { path: 'userId', select: 'firstname lastname' },
+			});
+
+		post.likes = post.likes.map((user) => getNameFromSocialProfile(user));
 
 		res.status(200).json({ response: post.likes });
 	} catch (error) {
