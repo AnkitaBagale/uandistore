@@ -53,7 +53,7 @@ const signUpWithUandI = async (req, res) => {
 		});
 		if (userNameExists) {
 			res.status(409).json({
-				message: 'Username not available!',
+				message: 'Username not available! Try another username',
 			});
 			return;
 		}
@@ -75,16 +75,24 @@ const createUserInUandIUsersandSocialProfile = async (req, res) => {
 
 		const user = await User.findOne({ email: userData.email });
 		if (user) {
-			res.status(403).json({ message: 'Email already exists!' });
+			const viewer = await SocialProfile.findOne({ userId: user._id });
+			if (viewer) {
+				res.status(409).json({ message: 'Account already exists!' });
+				return;
+			}
+			res.status(409).json({
+				message: 'Email already exists with U&I, Login with U&I to continue!',
+			});
 			return;
 		}
+
 		const userNameExists = await SocialProfile.findOne({
 			userName: userData.userName,
 		});
 
 		if (userNameExists) {
 			res.status(409).json({
-				message: 'Username not available!',
+				message: 'Username not available! Try another username',
 			});
 			return;
 		}
