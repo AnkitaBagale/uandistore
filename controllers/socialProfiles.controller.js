@@ -20,22 +20,32 @@ const verifyUserInUandIUsersCollection = async (req, res, next) => {
 		const user = await User.findOne({ email });
 
 		if (!user) {
-			res.status(403).json({ message: 'Email or password is incorrect!' });
-		} else {
-			const isValidPassword = await bcrypt.compare(password, user.password);
-
-			if (isValidPassword) {
-				res.status(200).json({
-					response: {
-						firstname: user.firstname,
-						lastname: user.lastname,
-						userId: user._id,
-					},
-				});
-			} else {
-				res.status(403).json({ message: 'Email or password is incorrect!' });
-			}
+			res
+				.status(403)
+				.json({ message: 'Account does not exist! Kindly sign up' });
+			return;
 		}
+
+		const socialProfile = await SocialProfile.findOne({ userId: user._id });
+		if (socialProfile) {
+			res
+				.status(409)
+				.json({ message: 'Account already exists! Please login to continue' });
+			return;
+		}
+		const isValidPassword = await bcrypt.compare(password, user.password);
+
+		if (isValidPassword) {
+			res.status(200).json({
+				response: {
+					firstname: user.firstname,
+					lastname: user.lastname,
+					userId: user._id,
+				},
+			});
+			return;
+		}
+		res.status(403).json({ message: 'Email or password is incorrect!' });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
