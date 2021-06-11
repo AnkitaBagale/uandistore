@@ -6,12 +6,15 @@ const {
 	createNewPost,
 	getUsersWhoLikedThePost,
 	likeOrDislikeThePost,
+	getAllPostsOfUserFromDb,
 } = require('../controllers/posts.controller');
 
 router
 	.route('/')
 	.get(authenticationVerifier, getAllPostsFromDb)
 	.post(authenticationVerifier, createNewPost);
+
+router.route('/:userName').get(authenticationVerifier, getAllPostsOfUserFromDb);
 
 router
 	.route('/:postId/likedby')

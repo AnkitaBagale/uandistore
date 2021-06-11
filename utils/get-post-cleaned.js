@@ -7,7 +7,7 @@ const getPostCleaned = (post, viewerId) => {
 	post._doc.likedByViewer = post.likes.includes(viewerId);
 	post.likes = undefined;
 	post._doc.time = getTimeFormatted(post.createdAt);
-	post.createdAt = undefined;
+	post._doc.createdAt = post.createdAt.getTime();
 
 	return post;
 };

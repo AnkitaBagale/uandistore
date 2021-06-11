@@ -13,7 +13,9 @@ const getAllPostsFromDb = async (req, res) => {
 			res.status(403).json({ message: 'User not found!' });
 			return;
 		}
-		const posts = await Post.find({})
+		const posts = await Post.find({
+			userId: { $in: [...viewer.following, viewer._id] },
+		})
 			.populate({
 				path: 'userId',
 				select: 'userName',
@@ -68,6 +70,38 @@ const createNewPost = async (req, res) => {
 	}
 };
 
+const getAllPostsOfUserFromDb = async (req, res) => {
+	try {
+		const userId = req.user._id;
+		const viewer = await SocialProfile.findOne({ userId });
+		const { userName } = req.params;
+		const user = await SocialProfile.findOne({ userName });
+		if (!user) {
+			res.status(403).json({ message: 'User not found!' });
+			return;
+		}
+		const posts = await Post.find({ userId: user._id })
+			.populate({
+				path: 'userId',
+				select: 'userName',
+			})
+			.sort({ createdAt: -1 });
+
+		for (post of posts) {
+			post = getPostCleaned(post, viewer._id);
+		}
+		res.status(200).json({
+			response: posts,
+		});
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			message: 'Request failed please check errorMessage key for more details',
+			errorMessage: error.message,
+		});
+	}
+};
+
 const getUsersWhoLikedThePost = async (req, res) => {
 	try {
 		const { postId } = req.params;
@@ -95,6 +129,7 @@ const likeOrDislikeThePost = async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const viewer = await SocialProfile.findOne({ userId });
+		let isLiked = false;
 		if (!viewer) {
 			res.status(403).json({ message: 'Invalid request' });
 			return;
@@ -107,11 +142,15 @@ const likeOrDislikeThePost = async (req, res) => {
 		}
 		const index = post.likes.indexOf(viewer._id);
 
-		index >= 0 ? post.likes.splice(index, 1) : post.likes.unshift(viewer._id);
+		if (index === -1) {
+			post.likes.unshift(viewer._id);
+			isLiked = true;
+		} else {
+			post.likes.splice(index, 1);
+		}
 
 		await post.save();
-
-		res.status(200).json({ message: 'Operation successful!' });
+		res.status(200).json({ isLiked });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -125,4 +164,5 @@ module.exports = {
 	createNewPost,
 	getUsersWhoLikedThePost,
 	likeOrDislikeThePost,
+	getAllPostsOfUserFromDb,
 };
