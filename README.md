@@ -7,54 +7,57 @@ U&amp;I store database
 - Express JS
 - MongoDB
 - Mongoose
+- JWT
 
 ### Completed functionalities:
 
-The BE code has routes for ecommerce and video library apps.
+The BE code has routes for ecommerce, video library, quiz, social media apps.
 
-Ecommerce App:
+### Users collection is common for both apps.
+
+### Ecommerce App:
 
 1. Cart and Wishlist
 
    - Add or remove product
 
-1. Authentication
+1. Authentication- JWT Authentication
 
-   - User Login
-   - User Signup
-   - User Forgot password
+   - Login, Signup, Forgot Password
 
 1. Address Management
-   - Add new address
-   - Update existing address
+   - Add new address, update/delete existing address
    - Addresss id is referenced in cart collection to keep it persistent in Cart page when user selects the preference.
 
-### Users collection is common for both apps.
+### Video Library App:
 
-Video Library App:
+1. Authentication- JWT Authentication
 
-1. Authentication
-
-   - User Login
-   - User Signup
-   - User Forgot password
+   - Login, Signup, Forgot Password
 
 1. Playlist management
 
-   - Create new playlist
-   - Update playlist title
+   - Create new playlist, Update/Delete playlist
    - Add or remove video in playlist
-   - Delete entire playlist
    - Default playlists- history, liked videos, watch later
 
 1. Notes Management
-   - Create new note
-   - Update note's title, description
-   - Delete note
+   - Create new note, Update/delete note
 
-Quiz App:
+### Quiz App:
 
+1. Authentication- JWT Authentication
+   - Login, Signup, Forgot Password
 1. Multiple Categories
 1. Multiple Quizzes
 1. Store user's score for the quiz
 1. HighScore management
+
+### Social Media App-
+
+1. Authentication- JWT Authentication
+   - Login, Signup, Forgot Password, U&I OAuth
+1. Create new post, like post, posts feed
+1. Follow and unfollow user
+1. Remove user from viewer's followers' list
+1. View and Update Profile
