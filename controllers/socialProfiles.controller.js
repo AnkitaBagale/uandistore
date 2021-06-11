@@ -10,6 +10,7 @@ const {
 const {
 	getSocialProfileCleaned,
 } = require('../utils/get-social-profile-cleaned');
+const { getIsFollowedByViewer } = require('../utils/get-is-followed-by-viewer');
 
 const JWT_KEY = process.env.JWT_KEY;
 
@@ -222,7 +223,7 @@ const updateProfileOnSocialMedia = async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const { userName } = req.params;
-		console.log({ userName });
+
 		let userDetails = await SocialProfile.findOne({ userName });
 
 		if (userId.toString() !== userDetails.userId.toString()) {
@@ -251,14 +252,26 @@ const updateProfileOnSocialMedia = async (req, res) => {
 const getFollowersDetailsOfUserFromDb = async (req, res) => {
 	try {
 		const { userName } = req.params;
-		let userDetails = await SocialProfile.findOne({ userName }).populate({
-			path: 'followers',
-			select: 'userName',
-		});
+
+		const userId = req.user._id;
+
+		let viewerDetails = await SocialProfile.findOne({ userId }).lean();
+
+		let userDetails = await SocialProfile.findOne({ userName })
+			.lean()
+			.populate({
+				path: 'followers',
+				select: 'userName followers',
+			});
+
 		if (!userDetails) {
 			res.status(404).json({ message: 'No user found' });
 			return;
 		}
+
+		userDetails.followers = userDetails.followers.map((user) =>
+			getIsFollowedByViewer(user, viewerDetails._id),
+		);
 		res.status(200).json({ response: userDetails.followers });
 	} catch (error) {
 		console.log(error);
@@ -274,8 +287,10 @@ const followOrUnfollowUser = async (req, res) => {
 		const userId = req.user._id;
 
 		const { userName } = req.params;
+
 		let userDetails = await SocialProfile.findOne({ userName });
 		let viewer = await SocialProfile.findOne({ userId });
+		let isAdded = false;
 		if (
 			!userDetails ||
 			!viewer ||
@@ -293,13 +308,14 @@ const followOrUnfollowUser = async (req, res) => {
 				(id) => id.toString() !== viewer._id.toString(),
 			);
 		} else {
-			viewer.following.push(userDetails._id);
-			userDetails.followers.push(viewer._id);
+			viewer.following.unshift(userDetails._id);
+			userDetails.followers.unshift(viewer._id);
+			isAdded = true;
 		}
 
 		await viewer.save();
 		await userDetails.save();
-		res.status(200).json({ response: 'Operation Successful!' });
+		res.status(200).json({ isAdded });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -312,14 +328,23 @@ const followOrUnfollowUser = async (req, res) => {
 const getFollowingDetailsOfUserFromDb = async (req, res) => {
 	try {
 		const { userName } = req.params;
-		let userDetails = await SocialProfile.findOne({ userName }).populate({
-			path: 'following',
-			select: 'userName',
-		});
+		const userId = req.user._id;
+
+		let viewerDetails = await SocialProfile.findOne({ userId }).lean();
+		let userDetails = await SocialProfile.findOne({ userName })
+			.lean()
+			.populate({
+				path: 'following',
+				select: 'userName followers',
+			});
 		if (!userDetails) {
 			res.status(404).json({ message: 'No user found' });
 			return;
 		}
+		userDetails.following = userDetails.following.map((user) =>
+			getIsFollowedByViewer(user, viewerDetails._id),
+		);
+
 		res.status(200).json({ response: userDetails.following });
 	} catch (error) {
 		console.log(error);
@@ -362,7 +387,7 @@ const removeUserFromFollowingList = async (req, res) => {
 		await viewer.save();
 		await userDetails.save();
 
-		res.status(200).json({ response: 'Operation Successful!' });
+		res.status(200).json({ isAdded: false });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
