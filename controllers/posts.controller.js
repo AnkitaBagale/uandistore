@@ -4,15 +4,13 @@ const { getPostCleaned } = require('../utils/get-post-cleaned');
 const {
 	getNameFromSocialProfile,
 } = require('../utils/get-name-from-social-profile');
+const {
+	pushActivityInNotification,
+} = require('../utils/push-activity-in-notification');
 
 const getAllPostsFromDb = async (req, res) => {
 	try {
-		const userId = req.user._id;
-		const viewer = await SocialProfile.findOne({ userId });
-		if (!viewer) {
-			res.status(403).json({ message: 'User not found!' });
-			return;
-		}
+		const { viewer } = req;
 		const posts = await Post.find({
 			userId: { $in: [...viewer.following, viewer._id] },
 		})
@@ -39,13 +37,7 @@ const getAllPostsFromDb = async (req, res) => {
 
 const createNewPost = async (req, res) => {
 	try {
-		const userId = req.user._id;
-		const viewer = await SocialProfile.findOne({ userId });
-		if (!viewer) {
-			res.status(403).json({ message: 'User not found!' });
-			return;
-		}
-
+		const { viewer } = req;
 		const postDetails = req.body;
 		let newPost = new Post({ ...postDetails, userId: viewer._id });
 		await newPost.save();
@@ -72,8 +64,8 @@ const createNewPost = async (req, res) => {
 
 const getAllPostsOfUserFromDb = async (req, res) => {
 	try {
-		const userId = req.user._id;
-		const viewer = await SocialProfile.findOne({ userId });
+		const { viewer } = req;
+
 		const { userName } = req.params;
 		const user = await SocialProfile.findOne({ userName });
 		if (!user) {
@@ -127,24 +119,24 @@ const getUsersWhoLikedThePost = async (req, res) => {
 
 const likeOrDislikeThePost = async (req, res) => {
 	try {
-		const userId = req.user._id;
-		const viewer = await SocialProfile.findOne({ userId });
+		const { viewer } = req;
+		const { notifications } = req;
+
 		let isLiked = false;
-		if (!viewer) {
-			res.status(403).json({ message: 'Invalid request' });
-			return;
-		}
+
 		const { postId } = req.params;
 		const post = await Post.findById(postId);
 		if (!post) {
 			res.status(400).json({ message: 'No post found' });
 			return;
 		}
+
 		const index = post.likes.indexOf(viewer._id);
 
 		if (index === -1) {
 			post.likes.unshift(viewer._id);
 			isLiked = true;
+			pushActivityInNotification({ notifications });
 		} else {
 			post.likes.splice(index, 1);
 		}

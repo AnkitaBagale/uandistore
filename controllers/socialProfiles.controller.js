@@ -193,8 +193,9 @@ const getAllUsersFromDb = async (req, res) => {
 
 const getUserProfileFromDb = async (req, res) => {
 	try {
-		const userId = req.user._id;
-		const viewer = await SocialProfile.findOne({ userId });
+		// const userId = req.user._id;
+		// const viewer = await SocialProfile.findOne({ userId });
+		const { viewer } = req;
 
 		const { userName } = req.params;
 		let userDetails = await SocialProfile.findOne({ userName }).populate({
@@ -221,25 +222,19 @@ const getUserProfileFromDb = async (req, res) => {
 
 const updateProfileOnSocialMedia = async (req, res) => {
 	try {
-		const userId = req.user._id;
+		const { viewer } = req;
 		const { userName } = req.params;
 
-		let userDetails = await SocialProfile.findOne({ userName });
-
-		if (userId.toString() !== userDetails.userId.toString()) {
+		if (userName !== viewer.userName) {
 			res.status(403).json({ message: 'Invalid request' });
 			return;
 		}
-		const userDetailsUpdates = req.body;
-		userDetails = extend(userDetails, userDetailsUpdates);
 
-		await userDetails.save();
+		const viewerUpdates = req.body;
+		viewer = extend(viewer, viewerUpdates);
 
-		userDetails = getSocialProfileCleaned(userDetails, userDetails._id);
-
-		res
-			.status(200)
-			.json({ response: { bio: userDetails.bio, link: userDetails.link } });
+		await viewer.save();
+		res.status(200).json({ response: { bio: viewer.bio, link: viewer.link } });
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -252,11 +247,7 @@ const updateProfileOnSocialMedia = async (req, res) => {
 const getFollowersDetailsOfUserFromDb = async (req, res) => {
 	try {
 		const { userName } = req.params;
-
-		const userId = req.user._id;
-
-		let viewerDetails = await SocialProfile.findOne({ userId }).lean();
-
+		const { viewer } = req;
 		let userDetails = await SocialProfile.findOne({ userName })
 			.lean()
 			.populate({
@@ -268,9 +259,8 @@ const getFollowersDetailsOfUserFromDb = async (req, res) => {
 			res.status(404).json({ message: 'No user found' });
 			return;
 		}
-
 		userDetails.followers = userDetails.followers.map((user) =>
-			getIsFollowedByViewer(user, viewerDetails._id),
+			getIsFollowedByViewer(user, viewer._id),
 		);
 		res.status(200).json({ response: userDetails.followers });
 	} catch (error) {
@@ -284,18 +274,12 @@ const getFollowersDetailsOfUserFromDb = async (req, res) => {
 
 const followOrUnfollowUser = async (req, res) => {
 	try {
-		const userId = req.user._id;
-
+		const { viewer } = req;
 		const { userName } = req.params;
-
 		let userDetails = await SocialProfile.findOne({ userName });
-		let viewer = await SocialProfile.findOne({ userId });
+
 		let isAdded = false;
-		if (
-			!userDetails ||
-			!viewer ||
-			userDetails._id.toString() === viewer._id.toString()
-		) {
+		if (!userDetails || userName === viewer.userName) {
 			res.status(400).json({ message: 'Invalid request' });
 			return;
 		}
@@ -328,9 +312,8 @@ const followOrUnfollowUser = async (req, res) => {
 const getFollowingDetailsOfUserFromDb = async (req, res) => {
 	try {
 		const { userName } = req.params;
-		const userId = req.user._id;
+		const { viewer } = req;
 
-		let viewerDetails = await SocialProfile.findOne({ userId }).lean();
 		let userDetails = await SocialProfile.findOne({ userName })
 			.lean()
 			.populate({
@@ -342,7 +325,7 @@ const getFollowingDetailsOfUserFromDb = async (req, res) => {
 			return;
 		}
 		userDetails.following = userDetails.following.map((user) =>
-			getIsFollowedByViewer(user, viewerDetails._id),
+			getIsFollowedByViewer(user, viewer._id),
 		);
 
 		res.status(200).json({ response: userDetails.following });
@@ -357,17 +340,12 @@ const getFollowingDetailsOfUserFromDb = async (req, res) => {
 
 const removeUserFromFollowingList = async (req, res) => {
 	try {
-		const userId = req.user._id;
+		const { viewer } = req;
 		const { userName } = req.params;
 
 		let userDetails = await SocialProfile.findOne({ userName });
-		let viewer = await SocialProfile.findOne({ userId });
 
-		if (
-			!userDetails ||
-			!viewer ||
-			userDetails._id.toString() === viewer._id.toString()
-		) {
+		if (!userDetails || userName === viewer.userName) {
 			res.status(400).json({ message: 'Invalid request' });
 			return;
 		}

@@ -8,17 +8,20 @@ const {
 	likeOrDislikeThePost,
 	getAllPostsOfUserFromDb,
 } = require('../controllers/posts.controller');
+const {
+	getViewerDetailsFromDb,
+} = require('../middlewares/get-viewer-details-from-db');
 
-router
-	.route('/')
-	.get(authenticationVerifier, getAllPostsFromDb)
-	.post(authenticationVerifier, createNewPost);
+router.use(authenticationVerifier);
+router.use(getViewerDetailsFromDb);
 
-router.route('/:userName').get(authenticationVerifier, getAllPostsOfUserFromDb);
+router.route('/').get(getAllPostsFromDb).post(createNewPost);
+
+router.route('/:userName').get(getAllPostsOfUserFromDb);
 
 router
 	.route('/:postId/likedby')
-	.get(authenticationVerifier, getUsersWhoLikedThePost)
-	.post(authenticationVerifier, likeOrDislikeThePost);
+	.get(getUsersWhoLikedThePost)
+	.post(likeOrDislikeThePost);
 
 module.exports = router;

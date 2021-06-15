@@ -15,6 +15,9 @@ const {
 	removeUserFromFollowingList,
 	getFollowingDetailsOfUserFromDb,
 } = require('../controllers/socialProfiles.controller');
+const {
+	getViewerDetailsFromDb,
+} = require('../middlewares/get-viewer-details-from-db');
 
 router.route('/').get(authenticationVerifier, getAllUsersFromDb);
 
@@ -28,19 +31,22 @@ router.route('/signup').post(createUserInUandIUsersandSocialProfile);
 
 router.route('/login').post(loginUserInSocialMedia);
 
+router.use(authenticationVerifier);
+router.use(getViewerDetailsFromDb);
+
 router
 	.route('/:userName')
-	.get(authenticationVerifier, getUserProfileFromDb)
-	.post(authenticationVerifier, updateProfileOnSocialMedia);
+	.get(getUserProfileFromDb)
+	.post(updateProfileOnSocialMedia);
 
 router
 	.route('/:userName/followers')
-	.get(authenticationVerifier, getFollowersDetailsOfUserFromDb)
-	.post(authenticationVerifier, followOrUnfollowUser);
+	.get(getFollowersDetailsOfUserFromDb)
+	.post(followOrUnfollowUser);
 
 router
 	.route('/:userName/following')
-	.get(authenticationVerifier, getFollowingDetailsOfUserFromDb)
-	.post(authenticationVerifier, removeUserFromFollowingList);
+	.get(getFollowingDetailsOfUserFromDb)
+	.post(removeUserFromFollowingList);
 
 module.exports = router;

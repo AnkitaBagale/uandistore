@@ -13,6 +13,10 @@ const PostSchema = new Schema(
 			type: String,
 			required: 'post content is required',
 		},
+		media: {
+			type: String,
+			default: '',
+		},
 		likes: [{ type: Schema.Types.ObjectId, ref: 'SocialProfile' }],
 	},
 	{
