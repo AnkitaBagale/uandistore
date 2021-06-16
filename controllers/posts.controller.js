@@ -4,9 +4,6 @@ const { getPostCleaned } = require('../utils/get-post-cleaned');
 const {
 	getNameFromSocialProfile,
 } = require('../utils/get-name-from-social-profile');
-const {
-	pushActivityInNotification,
-} = require('../utils/push-activity-in-notification');
 
 const getAllPostsFromDb = async (req, res) => {
 	try {
@@ -136,7 +133,6 @@ const likeOrDislikeThePost = async (req, res) => {
 		if (index === -1) {
 			post.likes.unshift(viewer._id);
 			isLiked = true;
-			pushActivityInNotification({ notifications });
 		} else {
 			post.likes.splice(index, 1);
 		}

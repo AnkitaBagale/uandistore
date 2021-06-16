@@ -1,20 +1,40 @@
 const { Notification } = require('../models/notification.model');
 
-const pushActivityInNotification = async ({ userIdWhoLiked, likedPostId }) => {
-	let notifications = await Notification.find({ userId: post.userId });
-	if (!notifications) {
-		notifications = new Notification({ userId: post.userId, activity: [] });
-		await notifications.save();
-	}
+const activityTypes = {
+	like: 'liked your post',
+	follow: 'started following you',
+};
 
-	const activity = {
-		userId: userIdWhoLiked,
-		likedPost: likedPostId,
-		activityTitle: 'liked your post',
-		time: new Date(),
-	};
-	notifications.activity.unshift(activity);
-	return notifications;
+const pushLikeActivityInNotification = async ({
+	userIdWhoLiked,
+	otherUserId,
+	likedPostId,
+	type,
+}) => {
+	let notifications = await Notification.find({ userId: otherUserId });
+
+	if (type === 'like') {
+		const activity = {
+			userId: otherUserId,
+			activityUserId: userIdWhoLiked,
+			activityTitle: activityTypes[type],
+			activityType: 'like',
+			likedPost: likedPostId,
+		};
+		const newNotification = new Notification(activity);
+		await newNotification.save();
+	}
+	if (type === 'dislike') {
+		const notification = await Notification.find({
+			userId: otherUserId,
+			activityUserId: userIdWhoLiked,
+			likedPost: likedPostId,
+		});
+		if (notification) {
+			await notification.remove();
+		}
+	}
+	console.log(notifications);
 };
 
 module.exports = { pushActivityInNotification };
