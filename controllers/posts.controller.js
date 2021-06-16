@@ -8,6 +8,7 @@ const {
 const {
 	pushLikeActivityInNotification,
 } = require('../controllers/notifications.controller');
+const { Notification } = require('../models/notification.model');
 
 const getAllPostsFromDb = async (req, res) => {
 	try {
@@ -161,10 +162,35 @@ const likeOrDislikeThePost = async (req, res) => {
 		});
 	}
 };
+
+const deletePost = async (req, res) => {
+	try {
+		const { postId } = req.params;
+		const { viewer } = req;
+
+		const post = await Post.findOne({ _id: postId, userId: viewer._id });
+
+		if (!post) {
+			res.status(400).json({ message: 'No post found' });
+			return;
+		}
+		await post.remove();
+		await Notification.deleteMany({ likedPost: post._id });
+
+		res.status(200).json({ response: post._id });
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			message: 'Request failed please check errorMessage key for more details',
+			errorMessage: error.message,
+		});
+	}
+};
 module.exports = {
 	getAllPostsFromDb,
 	createNewPost,
 	getUsersWhoLikedThePost,
 	likeOrDislikeThePost,
 	getAllPostsOfUserFromDb,
+	deletePost,
 };

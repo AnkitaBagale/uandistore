@@ -7,6 +7,7 @@ const {
 	getUsersWhoLikedThePost,
 	likeOrDislikeThePost,
 	getAllPostsOfUserFromDb,
+	deletePost,
 } = require('../controllers/posts.controller');
 const {
 	getViewerDetailsFromDb,
@@ -17,7 +18,9 @@ router.use(getViewerDetailsFromDb);
 
 router.route('/').get(getAllPostsFromDb).post(createNewPost);
 
-router.route('/:userName').get(getAllPostsOfUserFromDb);
+router.route('/:postId').delete(deletePost);
+
+router.route('/user/:userName').get(getAllPostsOfUserFromDb);
 
 router
 	.route('/:postId/likedby')
