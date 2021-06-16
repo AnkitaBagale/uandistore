@@ -9,6 +9,10 @@ const SocialProfileSchema = new Schema({
 		required: 'Username is required',
 		index: true,
 	},
+	avatar: {
+		type: String,
+		default: 'https://bit.ly/broken-link',
+	},
 	userId: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',

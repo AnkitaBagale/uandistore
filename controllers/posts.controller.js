@@ -5,6 +5,10 @@ const {
 	getNameFromSocialProfile,
 } = require('../utils/get-name-from-social-profile');
 
+const {
+	pushLikeActivityInNotification,
+} = require('../controllers/notifications.controller');
+
 const getAllPostsFromDb = async (req, res) => {
 	try {
 		const { viewer } = req;
@@ -13,7 +17,7 @@ const getAllPostsFromDb = async (req, res) => {
 		})
 			.populate({
 				path: 'userId',
-				select: 'userName',
+				select: 'userName avatar',
 			})
 			.sort({ createdAt: -1 });
 
@@ -42,7 +46,7 @@ const createNewPost = async (req, res) => {
 		await newPost
 			.populate({
 				path: 'userId',
-				select: 'userName',
+				select: 'userName avatar',
 			})
 			.execPopulate();
 
@@ -72,7 +76,7 @@ const getAllPostsOfUserFromDb = async (req, res) => {
 		const posts = await Post.find({ userId: user._id })
 			.populate({
 				path: 'userId',
-				select: 'userName',
+				select: 'userName avatar',
 			})
 			.sort({ createdAt: -1 });
 
@@ -98,7 +102,7 @@ const getUsersWhoLikedThePost = async (req, res) => {
 			.lean()
 			.populate({
 				path: 'likes',
-				select: 'userId userName',
+				select: 'userId avatar userName',
 				populate: { path: 'userId', select: 'firstname lastname' },
 			});
 
@@ -117,10 +121,8 @@ const getUsersWhoLikedThePost = async (req, res) => {
 const likeOrDislikeThePost = async (req, res) => {
 	try {
 		const { viewer } = req;
-		const { notifications } = req;
 
 		let isLiked = false;
-
 		const { postId } = req.params;
 		const post = await Post.findById(postId);
 		if (!post) {
@@ -133,8 +135,20 @@ const likeOrDislikeThePost = async (req, res) => {
 		if (index === -1) {
 			post.likes.unshift(viewer._id);
 			isLiked = true;
+			await pushLikeActivityInNotification({
+				userIdWhoLiked: viewer._id,
+				otherUserId: post.userId,
+				likedPostId: post._id,
+				type: 'like',
+			});
 		} else {
 			post.likes.splice(index, 1);
+			await pushLikeActivityInNotification({
+				userIdWhoLiked: viewer._id,
+				otherUserId: post.userId,
+				likedPostId: post._id,
+				type: 'dislike',
+			});
 		}
 
 		await post.save();

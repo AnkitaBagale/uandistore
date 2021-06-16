@@ -18,6 +18,9 @@ const {
 const {
 	getViewerDetailsFromDb,
 } = require('../middlewares/get-viewer-details-from-db');
+const {
+	getNotificationsOfUser,
+} = require('../controllers/notifications.controller');
 
 router.route('/').get(authenticationVerifier, getAllUsersFromDb);
 
@@ -33,6 +36,8 @@ router.route('/login').post(loginUserInSocialMedia);
 
 router.use(authenticationVerifier);
 router.use(getViewerDetailsFromDb);
+
+router.route('/notifications').get(getNotificationsOfUser);
 
 router
 	.route('/:userName')

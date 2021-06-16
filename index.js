@@ -45,11 +45,16 @@ app.use('/tutors', tutors);
 app.use('/quizzes', quizzes);
 app.use('/categories', categories);
 app.use('/users', users);
+
+/**
+ * These endpoint has private and public routes
+ */
+
 app.use('/social-profiles', socialProfiles);
 app.use('/posts', posts);
 
 /**
- * Authentication verifier middleware, please do not move
+ * Authentication verifier middleware, please do not move. Below routes are private.
  */
 app.use(authenticationVerifier);
 app.use('/wishlist', wishlists);

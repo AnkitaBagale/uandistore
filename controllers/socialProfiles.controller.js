@@ -11,6 +11,9 @@ const {
 	getSocialProfileCleaned,
 } = require('../utils/get-social-profile-cleaned');
 const { getIsFollowedByViewer } = require('../utils/get-is-followed-by-viewer');
+const {
+	pushFollowActivityInNotification,
+} = require('./notifications.controller');
 
 const JWT_KEY = process.env.JWT_KEY;
 
@@ -159,6 +162,7 @@ const loginUserInSocialMedia = async (req, res) => {
 				token,
 				userId: socialProfile._id,
 				userName: socialProfile.userName,
+				avatar: socialProfile.avatar,
 			},
 		});
 	} catch (error) {
@@ -172,7 +176,10 @@ const loginUserInSocialMedia = async (req, res) => {
 
 const getAllUsersFromDb = async (req, res) => {
 	try {
-		let users = await SocialProfile.find({}, { userName: 1, userId: 1 })
+		let users = await SocialProfile.find(
+			{},
+			{ userName: 1, userId: 1, avatar: 1 },
+		)
 			.lean()
 			.populate({
 				path: 'userId',
@@ -193,8 +200,6 @@ const getAllUsersFromDb = async (req, res) => {
 
 const getUserProfileFromDb = async (req, res) => {
 	try {
-		// const userId = req.user._id;
-		// const viewer = await SocialProfile.findOne({ userId });
 		const { viewer } = req;
 
 		const { userName } = req.params;
@@ -203,12 +208,10 @@ const getUserProfileFromDb = async (req, res) => {
 			select: 'firstname lastname',
 		});
 		//normalizing data
-
 		if (!userDetails || !viewer) {
 			res.status(403).json({ message: 'Invalid user id' });
 			return;
 		}
-
 		userDetails = getSocialProfileCleaned(userDetails, viewer._id);
 		res.status(200).json({ response: userDetails });
 	} catch (error) {
@@ -222,7 +225,7 @@ const getUserProfileFromDb = async (req, res) => {
 
 const updateProfileOnSocialMedia = async (req, res) => {
 	try {
-		const { viewer } = req;
+		let { viewer } = req;
 		const { userName } = req.params;
 
 		if (userName !== viewer.userName) {
@@ -234,7 +237,9 @@ const updateProfileOnSocialMedia = async (req, res) => {
 		viewer = extend(viewer, viewerUpdates);
 
 		await viewer.save();
-		res.status(200).json({ response: { bio: viewer.bio, link: viewer.link } });
+		res.status(200).json({
+			response: { bio: viewer.bio, link: viewer.link, avatar: viewer.avatar },
+		});
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({
@@ -252,7 +257,7 @@ const getFollowersDetailsOfUserFromDb = async (req, res) => {
 			.lean()
 			.populate({
 				path: 'followers',
-				select: 'userName followers',
+				select: 'userName avatar followers',
 			});
 
 		if (!userDetails) {
@@ -291,10 +296,22 @@ const followOrUnfollowUser = async (req, res) => {
 			userDetails.followers = userDetails.followers.filter(
 				(id) => id.toString() !== viewer._id.toString(),
 			);
+
+			await pushFollowActivityInNotification({
+				userIdWhoFollowed: viewer._id,
+				otherUserId: userDetails._id,
+				type: 'unfollow',
+			});
 		} else {
 			viewer.following.unshift(userDetails._id);
 			userDetails.followers.unshift(viewer._id);
 			isAdded = true;
+
+			await pushFollowActivityInNotification({
+				userIdWhoFollowed: viewer._id,
+				otherUserId: userDetails._id,
+				type: 'follow',
+			});
 		}
 
 		await viewer.save();
@@ -318,7 +335,7 @@ const getFollowingDetailsOfUserFromDb = async (req, res) => {
 			.lean()
 			.populate({
 				path: 'following',
-				select: 'userName followers',
+				select: 'userName avatar followers',
 			});
 		if (!userDetails) {
 			res.status(404).json({ message: 'No user found' });
