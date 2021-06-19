@@ -7,7 +7,8 @@ const getOrderDetails = async (req, res) => {
 		const orders = await Order.find({ userId })
 			.lean()
 			.populate({ path: 'items.productId', select: 'image brand name' })
-			.populate({ path: 'addressId' });
+			.populate({ path: 'addressId' })
+			.sort({ createdAt: -1 });
 
 		res.status(200).json({ response: orders });
 	} catch (error) {
@@ -26,10 +27,12 @@ const createNewOrder = async (req, res) => {
 		const newOrder = new Order({ ...orderDetails, userId });
 		await newOrder.save();
 		const cart = await Cart.findOne({ userId });
-		cart.products = cart.products.filter((item) =>
-			orderDetails.items.find(
-				(order) => order.productId.toString() !== item.productId.toString(),
-			),
+
+		cart.products = cart.products.filter(
+			(item) =>
+				!orderDetails.items.find((order) => {
+					return order.productId.toString() === item.productId.toString();
+				}),
 		);
 		await cart.save();
 
