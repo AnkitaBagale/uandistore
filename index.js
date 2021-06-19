@@ -1,10 +1,10 @@
 require('dotenv').config();
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const products = require('./routes/products.router');
 const carts = require('./routes/carts.router');
+const orders = require('./routes/orders.router');
 const users = require('./routes/users.router');
 const wishlists = require('./routes/wishlists.router');
 const addresses = require('./routes/addresses.router');
@@ -28,7 +28,7 @@ const initializeConnectionToDb = require('./db/db.connect');
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors());
 
 const PORT = 3000;
@@ -59,6 +59,7 @@ app.use('/posts', posts);
 app.use(authenticationVerifier);
 app.use('/wishlist', wishlists);
 app.use('/cart', carts);
+app.use('/orders', orders);
 app.use('/addresses', addresses);
 app.use('/notes', notes);
 app.use('/playlists', playlists);
