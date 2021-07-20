@@ -176,9 +176,10 @@ const loginUserInSocialMedia = async (req, res) => {
 
 const getAllUsersFromDb = async (req, res) => {
 	try {
+		const { viewer } = req;
 		let users = await SocialProfile.find(
 			{},
-			{ userName: 1, userId: 1, avatar: 1 },
+			{ userName: 1, userId: 1, avatar: 1, followers: 1 },
 		)
 			.lean()
 			.populate({
@@ -186,7 +187,7 @@ const getAllUsersFromDb = async (req, res) => {
 				select: 'firstname lastname',
 			});
 		for (let user of users) {
-			user = getNameFromSocialProfile(user);
+			user = getNameFromSocialProfile(user, viewer._id);
 		}
 		res.status(200).json({ response: users });
 	} catch (error) {

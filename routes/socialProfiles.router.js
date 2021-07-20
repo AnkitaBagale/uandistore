@@ -22,8 +22,6 @@ const {
 	getNotificationsOfUser,
 } = require('../controllers/notifications.controller');
 
-router.route('/').get(authenticationVerifier, getAllUsersFromDb);
-
 router
 	.route('/uandi-signup-verification')
 	.post(verifyUserInUandIUsersCollection);
@@ -37,6 +35,7 @@ router.route('/login').post(loginUserInSocialMedia);
 router.use(authenticationVerifier);
 router.use(getViewerDetailsFromDb);
 
+router.route('/').get(getAllUsersFromDb);
 router.route('/notifications').get(getNotificationsOfUser);
 
 router
