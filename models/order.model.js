@@ -34,9 +34,8 @@ const OrderSchema = new Schema(
 				quantity: { type: Number, default: 1 },
 			},
 		],
-		addressId: {
-			type: Schema.Types.ObjectId,
-			ref: 'Address',
+		address: {
+			type: String,
 			required: 'address id is required',
 		},
 	},

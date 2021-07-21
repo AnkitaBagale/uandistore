@@ -1,9 +1,6 @@
 const { User } = require('../models/user.model');
-
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
-const JWT_KEY = process.env.JWT_KEY;
+const { getToken } = require('../utils/get-token');
 
 const createNewUser = async (req, res) => {
 	try {
@@ -23,7 +20,13 @@ const createNewUser = async (req, res) => {
 		NewUser.password = await bcrypt.hash(NewUser.password, salt);
 		await NewUser.save();
 
-		res.status(201).json({ message: 'User is signed up!' });
+		const token = getToken(NewUser._id);
+		res.status(201).json({
+			response: {
+				firstname: NewUser.firstname,
+				token,
+			},
+		});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
@@ -44,9 +47,7 @@ const checkAuthenticationOfUser = async (req, res) => {
 			const isValidPassword = await bcrypt.compare(password, user.password);
 
 			if (isValidPassword) {
-				const token = jwt.sign({ userId: user._id }, JWT_KEY, {
-					expiresIn: '24h',
-				});
+				const token = getToken(user._id);
 				res.status(200).json({
 					response: {
 						firstname: user.firstname,
@@ -57,32 +58,6 @@ const checkAuthenticationOfUser = async (req, res) => {
 				res.status(403).json({ message: 'Email or password is incorrect!' });
 			}
 		}
-	} catch (error) {
-		console.error(error);
-		res.status(500).json({
-			message: 'Something went wrong!',
-			errorMessage: error.message,
-		});
-	}
-};
-
-const updatePassword = async (req, res) => {
-	try {
-		const user = req.body;
-		let userFromDb = await User.findOne({ email: user.email });
-
-		if (!userFromDb) {
-			res.status(403).json({ message: 'User does not exist' });
-		}
-
-		const salt = await bcrypt.genSalt(10);
-		userFromDb.password = await bcrypt.hash(user.password, salt);
-
-		userFromDb = await userFromDb.save();
-
-		res.status(200).json({
-			message: 'User details updated!',
-		});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({
@@ -116,5 +91,4 @@ module.exports = {
 	createNewUser,
 	checkAuthenticationOfUser,
 	getUserDetailsFromDb,
-	updatePassword,
 };

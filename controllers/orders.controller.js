@@ -1,5 +1,41 @@
 const { Cart } = require('../models/cart.model');
 const { Order } = require('../models/order.model');
+const shortid = require('shortid');
+const Razorpay = require('razorpay');
+
+const razorpay = new Razorpay({
+	key_id: process.env.RAZORPAY_KEY,
+	key_secret: process.env.RAZORPAY_SECRET,
+});
+
+const getRazorpayOrderId = async (req, res) => {
+	try {
+		const payment_capture = 1;
+		const { amount } = req.body;
+		const currency = 'INR';
+
+		const options = {
+			amount: amount * 100,
+			currency,
+			receipt: shortid.generate(),
+			payment_capture,
+		};
+
+		const response = await razorpay.orders.create(options);
+
+		res.status(201).json({
+			id: response.id,
+			currency: response.currency,
+			amount: response.amount,
+		});
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({
+			message: 'Request failed please check errorMessage key for more details',
+			errorMessage: error.message,
+		});
+	}
+};
 
 const getOrderDetails = async (req, res) => {
 	try {
@@ -7,7 +43,6 @@ const getOrderDetails = async (req, res) => {
 		const orders = await Order.find({ userId })
 			.lean()
 			.populate({ path: 'items.productId', select: 'image brand name' })
-			.populate({ path: 'addressId' })
 			.sort({ createdAt: -1 });
 
 		res.status(200).json({ response: orders });
@@ -46,4 +81,4 @@ const createNewOrder = async (req, res) => {
 	}
 };
 
-module.exports = { getOrderDetails, createNewOrder };
+module.exports = { getOrderDetails, createNewOrder, getRazorpayOrderId };
