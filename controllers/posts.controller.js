@@ -99,15 +99,19 @@ const getAllPostsOfUserFromDb = async (req, res) => {
 const getUsersWhoLikedThePost = async (req, res) => {
 	try {
 		const { postId } = req.params;
+		const { viewer } = req;
+
 		const post = await Post.findById(postId, { likes: 1 })
 			.lean()
 			.populate({
 				path: 'likes',
-				select: 'userId avatar userName',
+				select: 'userId avatar userName followers',
 				populate: { path: 'userId', select: 'firstname lastname' },
 			});
 
-		post.likes = post.likes.map((user) => getNameFromSocialProfile(user));
+		post.likes = post.likes.map((user) =>
+			getNameFromSocialProfile(user, viewer._id),
+		);
 
 		res.status(200).json({ response: post.likes });
 	} catch (error) {
