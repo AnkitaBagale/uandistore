@@ -1,10 +1,10 @@
 require('dotenv').config();
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const products = require('./routes/products.router');
 const carts = require('./routes/carts.router');
+const orders = require('./routes/orders.router');
 const users = require('./routes/users.router');
 const wishlists = require('./routes/wishlists.router');
 const addresses = require('./routes/addresses.router');
@@ -18,6 +18,9 @@ const quizzes = require('./routes/quizzes.router');
 const categories = require('./routes/categories.router');
 const quizAttempts = require('./routes/quizAttempts.router');
 
+const socialProfiles = require('./routes/socialProfiles.router');
+const posts = require('./routes/posts.router');
+
 const routeNotFoundHandler = require('./middlewares/route-not-found.middlerware');
 const allErrorsHandler = require('./middlewares/all-errors-handler.middleware');
 const authenticationVerifier = require('./middlewares/authentication-verifier.middleware');
@@ -25,7 +28,7 @@ const initializeConnectionToDb = require('./db/db.connect');
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors());
 
 const PORT = 3000;
@@ -44,11 +47,19 @@ app.use('/categories', categories);
 app.use('/users', users);
 
 /**
- * Authentication verifier middleware, please do not move
+ * These endpoint has private and public routes
+ */
+
+app.use('/social-profiles', socialProfiles);
+app.use('/posts', posts);
+
+/**
+ * Authentication verifier middleware, please do not move. Below routes are private.
  */
 app.use(authenticationVerifier);
 app.use('/wishlist', wishlists);
 app.use('/cart', carts);
+app.use('/orders', orders);
 app.use('/addresses', addresses);
 app.use('/notes', notes);
 app.use('/playlists', playlists);
